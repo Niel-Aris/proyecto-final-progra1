@@ -1,0 +1,10 @@
+# Carpetas de compilación de Visual Studio y CMake
+build/
+out/
+.vs/
+x64/
+Debug/
+Release/
+CMakeUserPresets.json
+CMakeSettings.json
+*.user
