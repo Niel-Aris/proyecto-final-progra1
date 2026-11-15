@@ -18,6 +18,7 @@ add_executable(LaPulpe
     # Integrante 2: Ventas y cobro
 
     # Integrante 3: Comprobantes e historial
+    HistorialForm.ui
 
 )
 
