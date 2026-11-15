@@ -14,6 +14,7 @@ add_executable(LaPulpe
     MainWindow.cpp MainWindow.h MainWindow.ui
 
     # Integrante 1: Productos e inventario
+    Producto.cpp Producto.h
 
     # Integrante 2: Ventas y cobro
 
