@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ProductosForm</class>
+ <widget class="QWidget" name="ProductosForm">
+  <layout class="QHBoxLayout" name="layoutPrincipal">
+   <item>
+    <widget class="QTableWidget" name="tablaProductos">
+     <property name="editTriggers"><set>QAbstractItemView::NoEditTriggers</set></property>
+     <property name="selectionBehavior"><enum>QAbstractItemView::SelectRows</enum></property>
+     <attribute name="horizontalHeaderStretchLastSection"><bool>true</bool></attribute>
+     <column><property name="text"><string>Código</string></property></column>
+     <column><property name="text"><string>Nombre</string></property></column>
+     <column><property name="text"><string>Precio</string></property></column>
+     <column><property name="text"><string>Existencias</string></property></column>
+     <column><property name="text"><string>Estado</string></property></column>
+    </widget>
+   </item>
+   <item>
+    <layout class="QVBoxLayout" name="layoutFicha">
+     <item>
+      <layout class="QFormLayout" name="layoutCampos">
+       <item row="0" column="0"><widget class="QLabel" name="lblCodigo"><property name="text"><string>Código</string></property></widget></item>
+       <item row="0" column="1"><widget class="QLineEdit" name="txtCodigo"/></item>
+       <item row="1" column="0"><widget class="QLabel" name="lblNombre"><property name="text"><string>Nombre</string></property></widget></item>
+       <item row="1" column="1"><widget class="QLineEdit" name="txtNombre"/></item>
+       <item row="2" column="0"><widget class="QLabel" name="lblPrecio"><property name="text"><string>Precio ₡</string></property></widget></item>
+       <item row="2" column="1"><widget class="QSpinBox" name="spnPrecio"><property name="maximum"><number>10000000</number></property></widget></item>
+       <item row="3" column="0"><widget class="QLabel" name="lblExistencias"><property name="text"><string>Existencias</string></property></widget></item>
+       <item row="3" column="1"><widget class="QSpinBox" name="spnExistencias"><property name="maximum"><number>100000</number></property></widget></item>
+      </layout>
+     </item>
+     <item><widget class="QPushButton" name="btnAgregar"><property name="text"><string>Agregar</string></property></widget></item>
+     <item><widget class="QPushButton" name="btnModificar"><property name="text"><string>Modificar</string></property></widget></item>
+     <item><widget class="QPushButton" name="btnDesactivar"><property name="text"><string>Activar / Desactivar</string></property></widget></item>
+     <item><spacer name="espacio"><property name="orientation"><enum>Qt::Vertical</enum></property></spacer></item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
