@@ -16,6 +16,7 @@ add_executable(LaPulpe
     # Integrante 1: Productos e inventario
 
     # Integrante 2: Ventas y cobro
+    LineaVenta.cpp LineaVenta.h
 
     # Integrante 3: Comprobantes e historial
 
