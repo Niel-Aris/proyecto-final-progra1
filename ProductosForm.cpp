@@ -2,6 +2,7 @@
 #include "ArchivoProductos.h"
 #include "Imagenes.h"
 #include "Estilo.h"
+#include "Ajustes.h"
 #include <QShortcut>
 #include <QKeySequence>
 #include <QHeaderView>
@@ -17,8 +18,6 @@
 #include <QGraphicsOpacityEffect>
 #include <QEasingCurve>
 
-// Desde esta cantidad para abajo un producto se marca como "por agotarse"
-const int POCAS_EXISTENCIAS = 5;
 
 // Columnas de la tabla
 const int COL_CODIGO = 0;
@@ -164,29 +163,29 @@ void ProductosForm::llenarTabla()
         existencias->setData(Qt::DisplayRole, p.getExistencias());
 
         QString textoEstado = "Activo";
-        QColor colorEstado("#1a7f37");
+        QColor colorEstado = Estilo::color("verde");
         if (p.getActivo() == false) {
             textoEstado = "Inactivo";
-            colorEstado = QColor("#8e8e93");
+            colorEstado = Estilo::color("gris2");
         } else if (p.getExistencias() == 0) {
             textoEstado = "Agotado";
-            colorEstado = QColor("#d70015");
-        } else if (p.getExistencias() <= POCAS_EXISTENCIAS) {
+            colorEstado = Estilo::color("error");
+        } else if (p.getExistencias() <= Ajustes::pocasExistencias()) {
             textoEstado = "Por agotarse";
-            colorEstado = QColor("#c93400");
+            colorEstado = Estilo::color("naranja");
         }
         QTableWidgetItem* estado = new QTableWidgetItem("● " + textoEstado);
         estado->setForeground(colorEstado);
         estado->setFlags(estado->flags() & ~Qt::ItemIsEditable);
 
-        if (p.getActivo() == true && p.getExistencias() <= POCAS_EXISTENCIAS) {
+        if (p.getActivo() == true && p.getExistencias() <= Ajustes::pocasExistencias()) {
             existencias->setForeground(colorEstado);
         }
         if (p.getActivo() == false) {
-            codigo->setForeground(QColor("#8e8e93"));
-            nombre->setForeground(QColor("#8e8e93"));
-            precio->setForeground(QColor("#8e8e93"));
-            existencias->setForeground(QColor("#8e8e93"));
+            codigo->setForeground(Estilo::color("gris2"));
+            nombre->setForeground(Estilo::color("gris2"));
+            precio->setForeground(Estilo::color("gris2"));
+            existencias->setForeground(Estilo::color("gris2"));
         }
 
         ui.tablaProductos->setItem(i, COL_CODIGO, codigo);
@@ -243,7 +242,7 @@ void ProductosForm::aplicarFiltro()
         } else if (ui.btnInactivos->isChecked() == true) {
             pasaFiltro = p.getActivo() == false;
         } else if (ui.btnPocas->isChecked() == true) {
-            pasaFiltro = p.getActivo() == true && p.getExistencias() <= POCAS_EXISTENCIAS;
+            pasaFiltro = p.getActivo() == true && p.getExistencias() <= Ajustes::pocasExistencias();
         }
 
         bool mostrar = coincide && pasaFiltro;
@@ -270,7 +269,7 @@ void ProductosForm::mostrarResumen()
         if (p.getActivo() == true) {
             activos++;
             valor = valor + p.getPrecio() * p.getExistencias();
-            if (p.getExistencias() <= POCAS_EXISTENCIAS) {
+            if (p.getExistencias() <= Ajustes::pocasExistencias()) {
                 pocas++;
             }
         }
@@ -402,7 +401,7 @@ void ProductosForm::mostrarFicha()
             estado = "No aparece en Vender";
         } else if (p.getExistencias() == 0) {
             estado = "Agotado";
-        } else if (p.getExistencias() <= POCAS_EXISTENCIAS) {
+        } else if (p.getExistencias() <= Ajustes::pocasExistencias()) {
             estado = "Quedan pocas";
         }
         ui.lblSubtitulo->setText(p.getCodigo() + "   ·   " + estado + "   ·   los cambios se guardan solos");
@@ -639,6 +638,9 @@ bool ProductosForm::guardarArchivo()
 // Cambia la imagen de la ficha. Con animación aparece suave y crece un poco, como en iOS.
 void ProductosForm::mostrarImagen(bool animar)
 {
+    if (Ajustes::animaciones() == false) {
+        animar = false;
+    }
     if (posicionActual == -1) {
         QString nombre = ui.txtNombre->text().trimmed();
         imagenActual = Imagenes::producto("", nombre, true);

@@ -1,10 +1,12 @@
 #include "VistaTicket.h"
+#include "Ajustes.h"
 #include <QPainter>
 #include <QPainterPath>
 #include <QLocale>
 #include <QFont>
 #include <QPen>
 #include <QColor>
+#include <QStringList>
 
 // Medidas del recibo, en puntos
 const int ANCHO_PAPEL = 300;
@@ -53,7 +55,7 @@ void VistaTicket::mostrarVenta(Venta venta, bool animar)
     hayVenta = true;
     setMinimumHeight(altoPapel() + 40);
     animacion->stop();
-    if (animar == true) {
+    if (animar == true && Ajustes::animaciones() == true) {
         animacion->setStartValue(0.0);
         animacion->setEndValue(1.0);
         animacion->start();
@@ -147,11 +149,17 @@ void VistaTicket::paintEvent(QPaintEvent* evento)
     pintor.drawEllipse(QPointF(x0 + ANCHO_PAPEL / 2.0, y + 14), 15, 15);
     pintor.setPen(QColor("#ffffff"));
     pintor.setFont(negrita);
-    pintor.drawText(QRectF(x0 + ANCHO_PAPEL / 2.0 - 15, y - 1, 30, 30), Qt::AlignCenter, "LP");
+    // Sello con las iniciales de la pulpería (La Pulpe = LP)
+    QString iniciales;
+    QStringList palabras = Ajustes::nombreTienda().split(" ", Qt::SkipEmptyParts);
+    for (int i = 0; i < palabras.size() && iniciales.size() < 2; i++) {
+        iniciales += palabras[i][0].toUpper();
+    }
+    pintor.drawText(QRectF(x0 + ANCHO_PAPEL / 2.0 - 15, y - 1, 30, 30), Qt::AlignCenter, iniciales);
     y = y + 34;
     pintor.setPen(tinta);
     pintor.setFont(titulo);
-    pintor.drawText(QRectF(izquierda, y, anchoTexto, 24), Qt::AlignCenter, "Pulpería La Pulpe");
+    pintor.drawText(QRectF(izquierda, y, anchoTexto, 24), Qt::AlignCenter, "Pulpería " + Ajustes::nombreTienda());
     y = y + 24;
     pintor.setFont(chica);
     pintor.setPen(gris);

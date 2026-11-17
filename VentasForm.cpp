@@ -4,6 +4,7 @@
 #include "TicketTxt.h"
 #include "Imagenes.h"
 #include "Estilo.h"
+#include "Ajustes.h"
 #include <QShortcut>
 #include <QKeySequence>
 #include <QLocale>
@@ -19,8 +20,6 @@
 #include <QEasingCurve>
 #include <vector>
 
-// Desde esta cantidad para abajo la tarjeta avisa que quedan pocas
-const int POCAS_EXISTENCIAS = 5;
 const int LADO_FOTO = 92;
 
 // Dibuja el círculo verde con el cheque de "venta lista". escala va de 0 a 1.
@@ -188,13 +187,15 @@ void VentasForm::llenarCatalogo()
         if (quedan <= 0) {
             // Sin existencias: la foto se ve apagada
             pintor.setCompositionMode(QPainter::CompositionMode_SourceAtop);
-            pintor.fillRect(QRectF(0, 0, LADO_FOTO, LADO_FOTO), QColor(245, 245, 247, 170));
+            QColor tapa = Estilo::color("fondo");
+            tapa.setAlpha(170);
+            pintor.fillRect(QRectF(0, 0, LADO_FOTO, LADO_FOTO), tapa);
             pintor.setCompositionMode(QPainter::CompositionMode_SourceOver);
         }
         if (enCarrito > 0) {
             // Globito azul con cuántos hay en el carrito
             pintor.setPen(QPen(QColor("#ffffff"), 2));
-            pintor.setBrush(QColor("#0071e3"));
+            pintor.setBrush(Estilo::color("acento"));
             pintor.drawEllipse(QPointF(LADO_FOTO - 15, 15), 13, 13);
             QFont letra = font();
             letra.setPixelSize(13);
@@ -208,7 +209,7 @@ void VentasForm::llenarCatalogo()
         QString texto = p.getNombre() + "\n" + colones(p.getPrecio());
         if (quedan <= 0) {
             texto = texto + "\nSin existencias";
-        } else if (quedan <= POCAS_EXISTENCIAS) {
+        } else if (quedan <= Ajustes::pocasExistencias()) {
             texto = texto + "\nQuedan " + QString::number(quedan);
         }
 
@@ -264,6 +265,9 @@ void VentasForm::agregarPrimero()
 // La foto del producto "vuela" de la tarjeta al carrito
 void VentasForm::animarVuelo(QListWidgetItem* item)
 {
+    if (Ajustes::animaciones() == false) {
+        return;
+    }
     QRect tarjeta = ui.lstProductos->visualItemRect(item);
     if (tarjeta.isEmpty() == true) {
         return;
@@ -511,7 +515,7 @@ void VentasForm::mostrarTotal()
     if (animacionTotal != nullptr) {
         animacionTotal->stop();
     }
-    if (total != totalMostrado) {
+    if (total != totalMostrado && Ajustes::animaciones() == true) {
         QVariantAnimation* animacion = new QVariantAnimation(this);
         animacionTotal = animacion;
         animacion->setDuration(380);
@@ -525,6 +529,7 @@ void VentasForm::mostrarTotal()
         totalMostrado = total;
     } else {
         ui.lblTotal->setText(colones(total));
+        totalMostrado = total;
     }
 
     // Pago rápido: el monto exacto y los billetes que más se usan para pagar ese total
@@ -670,6 +675,10 @@ void VentasForm::mostrarExito(Venta venta)
     btnNuevaVenta->setFocus();
     timerExito.start();
 
+    if (Ajustes::animaciones() == false) {
+        lblCheque->setPixmap(dibujarCheque(1.0));
+        return;
+    }
     Estilo::terminarEfectosArriba(frmExito);
     QGraphicsOpacityEffect* efecto = new QGraphicsOpacityEffect(frmExito);
     frmExito->setGraphicsEffect(efecto);

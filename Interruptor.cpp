@@ -1,4 +1,6 @@
 #include "Interruptor.h"
+#include "Estilo.h"
+#include "Ajustes.h"
 #include <QPainter>
 #include <QColor>
 
@@ -35,6 +37,10 @@ void Interruptor::setPosicion(double posicion)
 void Interruptor::animar(bool encendido)
 {
     animacion->stop();
+    if (Ajustes::animaciones() == false) {
+        update();   // sin animación se dibuja de una vez en su lugar
+        return;
+    }
     animacion->setStartValue(posicion);
     if (encendido == true) {
         animacion->setEndValue(1.0);
@@ -64,7 +70,7 @@ void Interruptor::paintEvent(QPaintEvent* evento)
     }
 
     // Fondo: de gris a verde según la posición
-    QColor apagado("#e3e3e8");
+    QColor apagado = Estilo::color("interruptor");
     QColor encendido("#34c759");
     QColor fondo(apagado.red() + (encendido.red() - apagado.red()) * lugar,
                  apagado.green() + (encendido.green() - apagado.green()) * lugar,

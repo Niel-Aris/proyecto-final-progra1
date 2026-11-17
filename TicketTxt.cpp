@@ -1,4 +1,5 @@
 #include "TicketTxt.h"
+#include "Ajustes.h"
 #include <QLocale>
 
 // El ticket mide 32 caracteres de ancho, como el papel de 58 mm de las impresoras de pulpería.
@@ -33,7 +34,7 @@ static QString centrado(QString texto)
 QString TicketTxt::generar(Venta venta)
 {
     QString texto;
-    texto += centrado("PULPERÍA LA PULPE");
+    texto += centrado(("Pulpería " + Ajustes::nombreTienda()).toUpper());
     texto += centrado("Comprobante de venta");
     texto += QString(ANCHO, '=') + "\n";
     texto += fila("Venta #" + QString::number(venta.getNumero()), venta.getFecha());

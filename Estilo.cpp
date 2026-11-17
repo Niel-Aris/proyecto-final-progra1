@@ -23,6 +23,13 @@
 #include <QPropertyAnimation>
 #include <QParallelAnimationGroup>
 #include <QEasingCurve>
+#include <QGuiApplication>
+#include <QStyleHints>
+#include <QRegularExpression>
+#include <QStringList>
+#include <algorithm>
+#include <map>
+#include "Ajustes.h"
 
 // Hace que los mensajes (QMessageBox) aparezcan suave en vez de golpe
 class AnimadorDialogos : public QObject
@@ -34,7 +41,7 @@ protected:
     bool eventFilter(QObject* objeto, QEvent* evento) override
     {
         QDialog* dialogo = qobject_cast<QDialog*>(objeto);
-        if (dialogo != nullptr && evento->type() == QEvent::Show) {
+        if (dialogo != nullptr && evento->type() == QEvent::Show && Ajustes::animaciones() == true) {
             dialogo->setWindowOpacity(0.0);
             QPropertyAnimation* animacion = new QPropertyAnimation(dialogo, "windowOpacity");
             animacion->setDuration(180);
@@ -47,41 +54,154 @@ protected:
     }
 };
 
+// Colores de cada tema. La hoja estilo.qss usa los nombres con @ y aquí se cambian por el color.
+// Primero va el claro y después el oscuro (parecidos a los de macOS).
+static QString colorDe(QString nombre, bool oscuro)
+{
+    static std::map<QString, std::pair<QString, QString>> colores = {
+        {"fondo", {"#f5f5f7", "#1c1c1e"}},
+        {"tarjeta", {"#ffffff", "#2c2c2e"}},
+        {"texto", {"#1d1d1f", "#f5f5f7"}},
+        {"texto2", {"#424245", "#d1d1d6"}},
+        {"gris", {"#6e6e73", "#98989d"}},
+        {"gris2", {"#8e8e93", "#8e8e93"}},
+        {"gris3", {"#a1a1a6", "#636366"}},
+        {"borde", {"#d2d2d7", "#48484a"}},
+        {"bordeSuave", {"#e0e0e5", "#3a3a3c"}},
+        {"linea", {"#ececf0", "#38383a"}},
+        {"alterno", {"#fafafc", "#303032"}},
+        {"seleccion", {"#dcebfd", "#1d3d63"}},
+        {"acento", {"#0071e3", "#0a84ff"}},
+        {"acentoHover", {"#0077ed", "#409cff"}},
+        {"acentoPresionado", {"#0062c4", "#0060df"}},
+        {"acentoSuave", {"#e8f1fd", "#16324f"}},
+        {"acentoSuave2", {"#d6e7fc", "#1d4170"}},
+        {"acentoApagado", {"#b9d5f6", "#2a3f5a"}},
+        {"neutro", {"#f2f2f5", "#3a3a3c"}},
+        {"neutroHover", {"#e8e8ed", "#444446"}},
+        {"neutroPresionado", {"#e6e6eb", "#4a4a4c"}},
+        {"segmento", {"#e3e3e8", "#2c2c2e"}},
+        {"segmentoHover", {"#d8d8de", "#3a3a3c"}},
+        {"segmentoElegido", {"#ffffff", "#636366"}},
+        {"scroll", {"#c7c7cc", "#5a5a5e"}},
+        {"scrollHover", {"#aeaeb2", "#6e6e73"}},
+        {"rojo", {"#e0352b", "#ff453a"}},
+        {"rojoOscuro", {"#b8261e", "#ff6961"}},
+        {"error", {"#d70015", "#ff453a"}},
+        {"errorFondo", {"#fff5f5", "#3a1d1d"}},
+        {"verde", {"#1a7f37", "#30d158"}},
+        {"naranja", {"#c93400", "#ff9f0a"}},
+        {"invertido", {"#1d1d1f", "#f5f5f7"}},
+        {"sobreInvertido", {"#ffffff", "#1d1d1f"}},
+        {"sobreAcento", {"#ffffff", "#ffffff"}},
+        {"barra", {"#1d1d1f", "#3a3a3c"}},
+        {"mesa", {"#e8e8ed", "#2a2a2c"}},
+        {"interruptor", {"#e3e3e8", "#48484a"}},
+    };
+    if (colores.count(nombre) == 0) {
+        return "#ff00ff";   // color feo a propósito, para notar si falta uno
+    }
+    if (oscuro == true) {
+        return colores[nombre].second;
+    }
+    return colores[nombre].first;
+}
+
+static bool temaOscuro = false;
+std::function<void()> Estilo::alCambiarTema;
+
 void Estilo::cargar(QApplication* app)
 {
     // Fusion se ve igual en Windows y en Mac, así la hoja de estilo no cambia
     app->setStyle(QStyleFactory::create("Fusion"));
+    aplicarTema();
+    app->installEventFilter(new AnimadorDialogos(app));
 
-    // Colores claros aunque el sistema esté en modo oscuro
+    // En "Automático" se sigue al sistema: si la Mac o Windows cambian a oscuro, la app también
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+    QObject::connect(QGuiApplication::styleHints(), &QStyleHints::colorSchemeChanged, app, []() {
+        if (Ajustes::tema() == "auto") {
+            Estilo::aplicarTema();
+        }
+    });
+#endif
+}
+
+// Decide si va claro u oscuro, arma los colores y vuelve a cargar la hoja de estilo
+void Estilo::aplicarTema()
+{
+    QApplication* app = qobject_cast<QApplication*>(QCoreApplication::instance());
+    QString tema = Ajustes::tema();
+    if (tema == "oscuro") {
+        temaOscuro = true;
+    } else if (tema == "claro") {
+        temaOscuro = false;
+    } else {
+        temaOscuro = false;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+        temaOscuro = QGuiApplication::styleHints()->colorScheme() == Qt::ColorScheme::Dark;
+#endif
+    }
+
     QPalette colores;
-    colores.setColor(QPalette::Window, QColor("#f5f5f7"));
-    colores.setColor(QPalette::WindowText, QColor("#1d1d1f"));
-    colores.setColor(QPalette::Base, QColor("#ffffff"));
-    colores.setColor(QPalette::AlternateBase, QColor("#fafafc"));
-    colores.setColor(QPalette::Text, QColor("#1d1d1f"));
-    colores.setColor(QPalette::Button, QColor("#ffffff"));
-    colores.setColor(QPalette::ButtonText, QColor("#1d1d1f"));
-    colores.setColor(QPalette::Highlight, QColor("#0071e3"));
-    colores.setColor(QPalette::HighlightedText, QColor("#ffffff"));
-    colores.setColor(QPalette::ToolTipBase, QColor("#ffffff"));
-    colores.setColor(QPalette::ToolTipText, QColor("#1d1d1f"));
-    colores.setColor(QPalette::PlaceholderText, QColor("#8e8e93"));
-    colores.setColor(QPalette::Disabled, QPalette::Text, QColor("#a1a1a6"));
-    colores.setColor(QPalette::Disabled, QPalette::ButtonText, QColor("#a1a1a6"));
+    colores.setColor(QPalette::Window, color("fondo"));
+    colores.setColor(QPalette::WindowText, color("texto"));
+    colores.setColor(QPalette::Base, color("tarjeta"));
+    colores.setColor(QPalette::AlternateBase, color("alterno"));
+    colores.setColor(QPalette::Text, color("texto"));
+    colores.setColor(QPalette::Button, color("tarjeta"));
+    colores.setColor(QPalette::ButtonText, color("texto"));
+    colores.setColor(QPalette::Highlight, color("acento"));
+    colores.setColor(QPalette::HighlightedText, color("sobreAcento"));
+    colores.setColor(QPalette::ToolTipBase, color("tarjeta"));
+    colores.setColor(QPalette::ToolTipText, color("texto"));
+    colores.setColor(QPalette::PlaceholderText, color("gris2"));
+    colores.setColor(QPalette::Disabled, QPalette::Text, color("gris3"));
+    colores.setColor(QPalette::Disabled, QPalette::ButtonText, color("gris3"));
     app->setPalette(colores);
 
     QFile archivo(":/estilo.qss");
     if (archivo.open(QIODevice::ReadOnly) == true) {
-        app->setStyleSheet(QString::fromUtf8(archivo.readAll()));
+        QString hoja = QString::fromUtf8(archivo.readAll());
         archivo.close();
+        // Se cambian los @nombre por su color. Los nombres largos van primero
+        // para que @acento no se coma el comienzo de @acentoHover.
+        QRegularExpression nombres("@([A-Za-z0-9]+)");
+        QStringList encontrados;
+        QRegularExpressionMatchIterator it = nombres.globalMatch(hoja);
+        while (it.hasNext() == true) {
+            QString nombre = it.next().captured(1);
+            if (encontrados.contains(nombre) == false) {
+                encontrados.append(nombre);
+            }
+        }
+        std::sort(encontrados.begin(), encontrados.end(), [](const QString& a, const QString& b) { return a.size() > b.size(); });
+        for (int i = 0; i < encontrados.size(); i++) {
+            if (encontrados[i] != "nombre") {
+                hoja.replace("@" + encontrados[i], colorDe(encontrados[i], temaOscuro));
+            }
+        }
+        app->setStyleSheet(hoja);
     }
 
-    app->installEventFilter(new AnimadorDialogos(app));
+    // Las pantallas vuelven a pintar lo que dibujan con colores del código
+    if (alCambiarTema) {
+        alCambiarTema();
+    }
+}
+
+QColor Estilo::color(QString nombre)
+{
+    return QColor(colorDe(nombre, temaOscuro));
+}
+
+bool Estilo::esOscuro()
+{
+    return temaOscuro;
 }
 
 void Estilo::aplicar(QMainWindow* ventana)
 {
-    ventana->setWindowTitle("La Pulpe");
     ventana->setMinimumSize(900, 640);
     ventana->resize(1060, 720);
 
@@ -91,19 +211,6 @@ void Estilo::aplicar(QMainWindow* ventana)
         principal->setContentsMargins(28, 20, 28, 24);
         principal->setSpacing(14);
 
-        // Encabezado con el nombre de la pulpería
-        QWidget* encabezado = new QWidget();
-        QHBoxLayout* filaEncabezado = new QHBoxLayout(encabezado);
-        filaEncabezado->setContentsMargins(4, 0, 4, 0);
-        filaEncabezado->setSpacing(12);
-        QLabel* marca = new QLabel("La Pulpe");
-        marca->setObjectName("lblMarca");
-        QLabel* lema = new QLabel("Inventario, ventas y tickets");
-        lema->setObjectName("lblLema");
-        filaEncabezado->addWidget(marca, 0, Qt::AlignBottom);
-        filaEncabezado->addWidget(lema, 0, Qt::AlignBottom);
-        filaEncabezado->addStretch();
-        principal->insertWidget(0, encabezado);
     }
 
     // Pestañas: control segmentado y animación al cambiar
@@ -183,6 +290,9 @@ void Estilo::aplicar(QMainWindow* ventana)
 
 void Estilo::animarEntrada(QMainWindow* ventana)
 {
+    if (Ajustes::animaciones() == false) {
+        return;
+    }
     ventana->setWindowOpacity(0.0);
     QPropertyAnimation* animacion = new QPropertyAnimation(ventana, "windowOpacity");
     animacion->setDuration(420);
@@ -199,7 +309,7 @@ void Estilo::animarEntrada(QMainWindow* ventana)
 
 void Estilo::animarPagina(QWidget* pagina)
 {
-    if (pagina != nullptr) {
+    if (pagina != nullptr && Ajustes::animaciones() == true) {
         aparecer(pagina, 320, 14);
     }
 }

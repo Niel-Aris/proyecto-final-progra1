@@ -1,5 +1,6 @@
 #include "HistorialForm.h"
 #include "Imagenes.h"
+#include "Estilo.h"
 #include <QLocale>
 #include <QDate>
 #include <QPainter>
@@ -21,6 +22,7 @@ HistorialForm::HistorialForm(Historial* historial, QWidget* parent)
     ui.setupUi(this);
     this->historial = historial;
     ventaElegida = -1;
+    ventasVistas = historial->getCantidad();
 
     // El recibo dibujado va dentro del área con scroll, por si la venta es larga
     vistaTicket = new VistaTicket();
@@ -67,6 +69,11 @@ HistorialForm::HistorialForm(Historial* historial, QWidget* parent)
 
 void HistorialForm::actualizar()
 {
+    // Si se cobró una venta nueva, se abre esa en vez de la que se estaba viendo
+    if (historial->getCantidad() > ventasVistas) {
+        ventaElegida = -1;
+    }
+    ventasVistas = historial->getCantidad();
     mostrarResumen();
     llenarLista();
 }
@@ -398,9 +405,9 @@ void HistorialForm::copiarTicket()
 void HistorialForm::mostrarAviso(QString texto, bool esError)
 {
     if (esError == true) {
-        ui.lblAviso->setStyleSheet("color: #d70015;");
+        ui.lblAviso->setStyleSheet("color: " + Estilo::color("error").name() + ";");
     } else {
-        ui.lblAviso->setStyleSheet("color: #1a7f37;");
+        ui.lblAviso->setStyleSheet("color: " + Estilo::color("verde").name() + ";");
     }
     ui.lblAviso->setText(texto);
     ui.lblAviso->show();

@@ -38,6 +38,7 @@ private:
     Historial* historial;
     VistaTicket* vistaTicket;
     int ventaElegida;       // posición en el historial de la venta que se ve, o -1
+    int ventasVistas;       // cuántas ventas había la última vez, para abrir la nueva cuando se cobra otra
     QTimer timerAviso;
 
     // Formatos de ticket. Para agregar uno nuevo se agrega a esta lista
