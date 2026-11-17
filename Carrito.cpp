@@ -1,5 +1,5 @@
 #include "Carrito.h"
-#include <QDate>
+#include <QDateTime>
 #include "Inventario.h"
 #include "Historial.h"
 #include "Venta.h"
@@ -58,7 +58,7 @@ QString Carrito::cobrar(int pago, Inventario* inventario, Historial* historial)
         inventario->rebajarExistencias(posicion, lineas[i].getCantidad());
     }
 
-    Venta venta(historial->getCantidad() + 1, QDate::currentDate().toString("dd/MM/yyyy"), pago);
+    Venta venta(historial->getCantidad() + 1, QDateTime::currentDateTime().toString("dd/MM/yyyy hh:mm"), pago);
     for (int i = 0; i < lineas.size(); i++) {
         venta.agregarLinea(lineas[i]);
     }

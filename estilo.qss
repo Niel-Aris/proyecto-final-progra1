@@ -568,3 +568,88 @@ QPushButton#btnNuevaVenta {
     padding: 10px;
     font-weight: 600;
 }
+
+/* Historial: resumen, lista por día y recibo */
+QFrame#frmHoy, QFrame#frmPromedio, QFrame#frmTop {
+    background: #ffffff;
+    border: 1px solid #e0e0e5;
+    border-radius: 14px;
+}
+QLabel#lblHoyTitulo, QLabel#lblPromedioTitulo, QLabel#lblTopTitulo {
+    color: #6e6e73;
+    font-size: 12px;
+    font-weight: 600;
+}
+QLabel#lblHoyValor, QLabel#lblPromedioValor {
+    font-size: 22px;
+    font-weight: 800;
+}
+QLabel#lblTopValor {
+    font-size: 15px;
+    font-weight: 700;
+}
+QLabel#lblHoyDetalle, QLabel#lblPromedioDetalle, QLabel#lblTopDetalle, QLabel#lblConteo {
+    color: #6e6e73;
+    font-size: 12px;
+}
+QPushButton#btnTodas, QPushButton#btnHoy, QPushButton#btnSemana {
+    background: transparent;
+    color: #424245;
+    border: 1px solid transparent;
+    border-radius: 14px;
+    padding: 5px 12px;
+    font-weight: 500;
+}
+QPushButton#btnTodas:hover, QPushButton#btnHoy:hover, QPushButton#btnSemana:hover {
+    background: #e8e8ed;
+}
+QPushButton#btnTodas:checked, QPushButton#btnHoy:checked, QPushButton#btnSemana:checked {
+    background: #1d1d1f;
+    color: #ffffff;
+}
+QListWidget#lstVentas {
+    background: transparent;
+    border: none;
+    outline: none;
+}
+QListWidget#lstVentas::item {
+    border-radius: 12px;
+    margin: 1px 0px;
+}
+QListWidget#lstVentas::item:selected {
+    background: #dcebfd;
+}
+QListWidget#lstVentas::item:hover:!selected {
+    background: #ebebf0;
+}
+QLabel#encabezadoDia {
+    color: #6e6e73;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 10px 4px 0px 4px;
+}
+QLabel#filaTitulo {
+    font-weight: 700;
+}
+QLabel#filaDetalle, QLabel#filaResumen {
+    color: #6e6e73;
+    font-size: 12px;
+}
+QLabel#filaTotal {
+    font-size: 15px;
+    font-weight: 700;
+}
+QScrollArea#scrTicket {
+    background: #e8e8ed;
+    border: none;
+    border-radius: 16px;
+}
+QPushButton#btnCopiar {
+    background: #0071e3;
+    color: #ffffff;
+    border: 1px solid #0071e3;
+    font-weight: 600;
+}
+QPushButton#btnCopiar:hover {
+    background: #0077ed;
+}
