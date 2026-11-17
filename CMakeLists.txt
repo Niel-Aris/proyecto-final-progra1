@@ -31,7 +31,7 @@ add_executable(LaPulpe
     Ticket.cpp Ticket.h
     TicketTxt.cpp TicketTxt.h
     TicketCsv.cpp TicketCsv.h
-    HistorialForm.ui
+    HistorialForm.cpp HistorialForm.h HistorialForm.ui
 
 )
 
