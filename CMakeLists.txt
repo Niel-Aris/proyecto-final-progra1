@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
 
@@ -12,6 +13,10 @@ find_package(Qt6 REQUIRED COMPONENTS Widgets)
 add_executable(LaPulpe
     main.cpp
     MainWindow.cpp MainWindow.h MainWindow.ui
+
+    # Diseño visual: estilo y animaciones
+    Estilo.cpp Estilo.h
+    recursos.qrc
 
     # Integrante 1: Productos e inventario
     Producto.cpp Producto.h
