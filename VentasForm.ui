@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>VentasForm</class>
+ <widget class="QWidget" name="VentasForm">
+  <layout class="QHBoxLayout" name="layoutPrincipal">
+   <item>
+    <layout class="QVBoxLayout" name="layoutCatalogo">
+     <item>
+      <widget class="QLineEdit" name="txtBuscar">
+       <property name="placeholderText"><string>Buscar producto</string></property>
+       <property name="clearButtonEnabled"><bool>true</bool></property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QListWidget" name="lstProductos">
+       <property name="selectionMode"><enum>QAbstractItemView::NoSelection</enum></property>
+       <property name="focusPolicy"><enum>Qt::NoFocus</enum></property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="lblAyuda">
+       <property name="text"><string>Clic en un producto para agregarlo</string></property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QFrame" name="frmCarrito">
+     <property name="minimumSize"><size><width>360</width><height>0</height></size></property>
+     <property name="maximumSize"><size><width>420</width><height>16777215</height></size></property>
+     <layout class="QVBoxLayout" name="layoutCarrito">
+      <item>
+       <layout class="QHBoxLayout" name="layoutCabecera">
+        <item><widget class="QLabel" name="lblVentaTitulo"><property name="text"><string>Venta actual</string></property></widget></item>
+        <item><widget class="QLabel" name="lblArticulos"><property name="text"><string/></property></widget></item>
+        <item><spacer name="espacioCabecera"><property name="orientation"><enum>Qt::Horizontal</enum></property></spacer></item>
+        <item><widget class="QPushButton" name="btnCancelar"><property name="text"><string>Vaciar</string></property></widget></item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QListWidget" name="lstCarrito">
+        <property name="selectionMode"><enum>QAbstractItemView::NoSelection</enum></property>
+        <property name="focusPolicy"><enum>Qt::NoFocus</enum></property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="lblVacio">
+        <property name="text"><string>El carrito está vacío.
+Toca un producto para agregarlo.</string></property>
+        <property name="alignment"><set>Qt::AlignCenter</set></property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="lblError">
+        <property name="text"><string/></property>
+        <property name="wordWrap"><bool>true</bool></property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QFrame" name="lineaTotal">
+        <property name="frameShape"><enum>QFrame::HLine</enum></property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="layoutTotal">
+        <item><widget class="QLabel" name="lblTotalTitulo"><property name="text"><string>Total</string></property></widget></item>
+        <item><spacer name="espacioTotal"><property name="orientation"><enum>Qt::Horizontal</enum></property></spacer></item>
+        <item><widget class="QLabel" name="lblTotal"><property name="text"><string>₡0</string></property></widget></item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="layoutPago">
+        <item><widget class="QLabel" name="lblPago"><property name="text"><string>Paga con</string></property></widget></item>
+        <item><widget class="QSpinBox" name="spnPago"><property name="maximum"><number>10000000</number></property><property name="prefix"><string>₡ </string></property><property name="groupSeparatorShown"><bool>true</bool></property></widget></item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="layoutRapidos">
+        <item><widget class="QPushButton" name="btnRapido1"><property name="text"><string>Exacto</string></property></widget></item>
+        <item><widget class="QPushButton" name="btnRapido2"><property name="text"><string/></property></widget></item>
+        <item><widget class="QPushButton" name="btnRapido3"><property name="text"><string/></property></widget></item>
+        <item><widget class="QPushButton" name="btnRapido4"><property name="text"><string/></property></widget></item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QLabel" name="lblVuelto">
+        <property name="text"><string/></property>
+       </widget>
+      </item>
+      <item><widget class="QPushButton" name="btnCobrar"><property name="text"><string>Cobrar</string></property></widget></item>
+      <item>
+       <widget class="QFrame" name="barraDeshacer">
+        <layout class="QHBoxLayout" name="layoutDeshacer">
+         <item><widget class="QLabel" name="lblDeshacer"><property name="text"><string/></property></widget></item>
+         <item><spacer name="espacioDeshacer"><property name="orientation"><enum>Qt::Horizontal</enum></property></spacer></item>
+         <item><widget class="QPushButton" name="btnDeshacer"><property name="text"><string>Deshacer</string></property></widget></item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

@@ -1,0 +1,22 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource prefix="/">
+        <file>estilo.qss</file>
+        <file>flecha.png</file>
+        <file>flecha@2x.png</file>
+        <file>imagenes/logo.png</file>
+        <file>imagenes/logo-chico.png</file>
+        <file>imagenes/logo-chico@2x.png</file>
+        <file>imagenes/P001.png</file>
+        <file>imagenes/P002.png</file>
+        <file>imagenes/P003.png</file>
+        <file>imagenes/P004.png</file>
+        <file>imagenes/P005.png</file>
+        <file>imagenes/P006.png</file>
+        <file>imagenes/P007.png</file>
+        <file>imagenes/P008.png</file>
+        <file>imagenes/P009.png</file>
+        <file>imagenes/P010.png</file>
+        <file>imagenes/P011.png</file>
+    </qresource>
+</RCC>

@@ -1,0 +1,79 @@
+[
+    {
+        "codigo": "P001",
+        "nombre": "Arroz 1 kg",
+        "precio": 1250,
+        "existencias": 24,
+        "activo": true
+    },
+    {
+        "codigo": "P002",
+        "nombre": "Frijoles 900 g",
+        "precio": 1475,
+        "existencias": 18,
+        "activo": true
+    },
+    {
+        "codigo": "P003",
+        "nombre": "Leche 1 L",
+        "precio": 975,
+        "existencias": 30,
+        "activo": true
+    },
+    {
+        "codigo": "P004",
+        "nombre": "Café 250 g",
+        "precio": 2350,
+        "existencias": 10,
+        "activo": true
+    },
+    {
+        "codigo": "P005",
+        "nombre": "Huevos (15)",
+        "precio": 2900,
+        "existencias": 2,
+        "activo": true
+    },
+    {
+        "codigo": "P006",
+        "nombre": "Refresco 2.5 L",
+        "precio": 1850,
+        "existencias": 15,
+        "activo": false
+    },
+    {
+        "codigo": "P007",
+        "nombre": "Azúcar 1 kg",
+        "precio": 1150,
+        "existencias": 20,
+        "activo": true
+    },
+    {
+        "codigo": "P008",
+        "nombre": "Aceite 1 L",
+        "precio": 2450,
+        "existencias": 12,
+        "activo": true
+    },
+    {
+        "codigo": "P009",
+        "nombre": "Pan cuadrado",
+        "precio": 1600,
+        "existencias": 8,
+        "activo": true
+    },
+    {
+        "codigo": "P010",
+        "nombre": "Atún en agua",
+        "precio": 1350,
+        "existencias": 25,
+        "activo": true
+    },
+    {
+        "codigo": "P011",
+        "nombre": "Galletas María",
+        "precio": 850,
+        "existencias": 4,
+        "activo": true
+    }
+]

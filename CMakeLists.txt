@@ -5,6 +5,9 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
+# Para que los .ui encuentren los widgets propios, como Interruptor.h
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
 
@@ -13,17 +16,47 @@ add_executable(LaPulpe
     main.cpp
     MainWindow.cpp MainWindow.h MainWindow.ui
 
+    # Diseño visual: estilo y animaciones
+    Estilo.cpp Estilo.h
+    Imagenes.cpp Imagenes.h
+    Iconos.cpp Iconos.h
+
+    # Ventana principal: ajustes e inicio de sesión de prueba
+    Ajustes.cpp Ajustes.h
+    VentanaLogin.cpp VentanaLogin.h
+    VentanaAjustes.cpp VentanaAjustes.h
+    recursos.qrc
+
     # Integrante 1: Productos e inventario
+    Producto.cpp Producto.h
+    Inventario.cpp Inventario.h
+    ArchivoProductos.cpp ArchivoProductos.h
+    ProductosForm.cpp ProductosForm.h ProductosForm.ui
+    Interruptor.cpp Interruptor.h
 
     # Integrante 2: Ventas y cobro
+    LineaVenta.cpp LineaVenta.h
+    Carrito.cpp Carrito.h
+    VentasForm.cpp VentasForm.h VentasForm.ui
 
     # Integrante 3: Comprobantes e historial
+    Venta.cpp Venta.h
+    Historial.cpp Historial.h
+    ArchivoVentas.cpp ArchivoVentas.h
+    Ticket.cpp Ticket.h
+    TicketTxt.cpp TicketTxt.h
+    TicketCsv.cpp TicketCsv.h
+    HistorialForm.cpp HistorialForm.h HistorialForm.ui
+    VistaTicket.cpp VistaTicket.h
 
 )
 
 target_link_libraries(LaPulpe PRIVATE Qt6::Widgets)
 
-# Copia los productos de ejemplo a la carpeta donde se ejecuta el programa
-if(EXISTS ${CMAKE_SOURCE_DIR}/productos.txt)
-    file(COPY productos.txt DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+# Copia los productos de ejemplo a la carpeta donde se ejecuta el programa.
+# Solo la primera vez: si ya hay datos (productos.json, o el productos.txt de antes) no se deben pisar.
+if(EXISTS ${CMAKE_SOURCE_DIR}/productos.json
+   AND NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/productos.json
+   AND NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/productos.txt)
+    file(COPY productos.json DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 endif()
