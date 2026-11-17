@@ -1,0 +1,233 @@
+/* Diseño visual de La Pulpe.
+   Colores: fondo gris claro, tarjetas blancas y azul para la acción principal.
+   Los nombres con # son los objectName de los archivos .ui. */
+
+QWidget {
+    color: #1d1d1f;
+    font-size: 13px;
+}
+
+QMainWindow, QWidget#centralWidget, QWidget#ProductosForm, QWidget#VentasForm, QWidget#HistorialForm {
+    background: #f5f5f7;
+}
+
+/* Encabezado que agrega Estilo::aplicar */
+QLabel#lblMarca {
+    font-size: 26px;
+    font-weight: 700;
+}
+QLabel#lblLema {
+    color: #6e6e73;
+    font-size: 13px;
+}
+
+/* Pestañas como control segmentado */
+QTabWidget::pane {
+    border: none;
+    background: transparent;
+    top: 4px;
+}
+QTabWidget::tab-bar {
+    alignment: center;
+}
+QTabBar {
+    background: #e3e3e8;
+    border-radius: 9px;
+}
+QTabBar::tab {
+    background: transparent;
+    color: #1d1d1f;
+    padding: 6px 22px;
+    margin: 2px;
+    border-radius: 7px;
+    min-width: 70px;
+    font-weight: 500;
+}
+QTabBar::tab:selected {
+    background: #ffffff;
+    border: 1px solid #d2d2d7;
+    font-weight: 600;
+}
+QTabBar::tab:hover:!selected {
+    background: #d8d8de;
+}
+
+/* Tablas como tarjetas blancas */
+QTableWidget {
+    background: #ffffff;
+    alternate-background-color: #fafafc;
+    border: 1px solid #e0e0e5;
+    border-radius: 12px;
+    gridline-color: transparent;
+    selection-background-color: #dcebfd;
+    selection-color: #1d1d1f;
+    padding: 4px;
+}
+QTableWidget::item {
+    padding: 6px 8px;
+    border: none;
+}
+QHeaderView {
+    background: transparent;
+}
+QHeaderView::section {
+    background: #ffffff;
+    color: #6e6e73;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 8px;
+    border: none;
+    border-bottom: 1px solid #ececf0;
+}
+QTableCornerButton::section {
+    background: #ffffff;
+    border: none;
+}
+
+/* Campos */
+QLineEdit, QComboBox {
+    background: #ffffff;
+    border: 1px solid #d2d2d7;
+    border-radius: 8px;
+    padding: 6px 10px;
+    selection-background-color: #0071e3;
+    selection-color: #ffffff;
+}
+QSpinBox {
+    background: #ffffff;
+    border: 1px solid #d2d2d7;
+    border-radius: 8px;
+    padding: 6px 10px;
+    selection-background-color: #0071e3;
+    selection-color: #ffffff;
+}
+/* El campo de texto que va por dentro del número no lleva su propio borde */
+QSpinBox QLineEdit {
+    border: none;
+    padding: 0px;
+    margin: 0px;
+    background: transparent;
+}
+QLineEdit:focus, QSpinBox:focus, QComboBox:focus {
+    border: 1px solid #0071e3;
+}
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: center right;
+    width: 26px;
+    border: none;
+}
+QComboBox::down-arrow {
+    image: url(:/flecha.png);
+    width: 12px;
+    height: 12px;
+}
+QSpinBox::up-button, QSpinBox::down-button {
+    width: 0px;
+    border: none;
+}
+QComboBox QAbstractItemView {
+    background: #ffffff;
+    border: 1px solid #d2d2d7;
+    padding: 4px;
+    selection-background-color: #0071e3;
+    selection-color: #ffffff;
+    outline: none;
+}
+
+QLabel {
+    background: transparent;
+}
+
+/* Botones */
+QPushButton {
+    background: #ffffff;
+    color: #1d1d1f;
+    border: 1px solid #d2d2d7;
+    border-radius: 9px;
+    padding: 7px 18px;
+    font-weight: 500;
+}
+QPushButton:hover {
+    background: #f2f2f5;
+}
+QPushButton:pressed {
+    background: #e6e6eb;
+}
+
+/* Acción principal de cada pantalla */
+QPushButton#btnAgregar, QPushButton#btnCobrar, QPushButton#btnGenerar {
+    background: #0071e3;
+    color: #ffffff;
+    border: 1px solid #0071e3;
+    font-weight: 600;
+}
+QPushButton#btnAgregar:hover, QPushButton#btnCobrar:hover, QPushButton#btnGenerar:hover {
+    background: #0077ed;
+    border-color: #0077ed;
+}
+QPushButton#btnAgregar:pressed, QPushButton#btnCobrar:pressed, QPushButton#btnGenerar:pressed {
+    background: #0062c4;
+    border-color: #0062c4;
+}
+QPushButton#btnCobrar {
+    padding: 9px 28px;
+    font-size: 14px;
+}
+QPushButton#btnCancelar {
+    color: #e0352b;
+}
+
+/* Ventas: el total grande */
+QLabel#lblTotal {
+    font-size: 24px;
+    font-weight: 700;
+    padding-right: 12px;
+}
+QLabel#lblPago, QLabel#lblProducto, QLabel#lblCantidad, QLabel#lblFormato,
+QLabel#lblCodigo, QLabel#lblNombre, QLabel#lblPrecio, QLabel#lblExistencias {
+    color: #6e6e73;
+}
+
+/* Historial: el ticket como un recibo */
+QPlainTextEdit {
+    background: #ffffff;
+    border: 1px solid #e0e0e5;
+    border-radius: 12px;
+    padding: 12px;
+}
+
+/* Barras de desplazamiento delgadas */
+QScrollBar:vertical {
+    background: transparent;
+    width: 10px;
+    margin: 4px 2px;
+}
+QScrollBar:horizontal {
+    background: transparent;
+    height: 10px;
+    margin: 2px 4px;
+}
+QScrollBar::handle:vertical, QScrollBar::handle:horizontal {
+    background: #c7c7cc;
+    border-radius: 3px;
+    min-height: 30px;
+    min-width: 30px;
+}
+QScrollBar::handle:hover {
+    background: #aeaeb2;
+}
+QScrollBar::add-line, QScrollBar::sub-line, QScrollBar::add-page, QScrollBar::sub-page {
+    background: none;
+    border: none;
+    width: 0px;
+    height: 0px;
+}
+
+/* Mensajes */
+QMessageBox {
+    background: #ffffff;
+}
+QMessageBox QPushButton {
+    min-width: 80px;
+}

@@ -1,0 +1,8 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource prefix="/">
+        <file>estilo.qss</file>
+        <file>flecha.png</file>
+        <file>flecha@2x.png</file>
+    </qresource>
+</RCC>
