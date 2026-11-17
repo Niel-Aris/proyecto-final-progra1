@@ -1,5 +1,6 @@
 #include "HistorialForm.h"
 #include "Imagenes.h"
+#include "Estilo.h"
 #include <QLocale>
 #include <QDate>
 #include <QPainter>
@@ -398,9 +399,9 @@ void HistorialForm::copiarTicket()
 void HistorialForm::mostrarAviso(QString texto, bool esError)
 {
     if (esError == true) {
-        ui.lblAviso->setStyleSheet("color: #d70015;");
+        ui.lblAviso->setStyleSheet("color: " + Estilo::color("error").name() + ";");
     } else {
-        ui.lblAviso->setStyleSheet("color: #1a7f37;");
+        ui.lblAviso->setStyleSheet("color: " + Estilo::color("verde").name() + ";");
     }
     ui.lblAviso->setText(texto);
     ui.lblAviso->show();

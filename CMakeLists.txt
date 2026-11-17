@@ -19,6 +19,12 @@ add_executable(LaPulpe
     # Diseño visual: estilo y animaciones
     Estilo.cpp Estilo.h
     Imagenes.cpp Imagenes.h
+    Iconos.cpp Iconos.h
+
+    # Ventana principal: ajustes e inicio de sesión de prueba
+    Ajustes.cpp Ajustes.h
+    VentanaLogin.cpp VentanaLogin.h
+    VentanaAjustes.cpp VentanaAjustes.h
     recursos.qrc
 
     # Integrante 1: Productos e inventario

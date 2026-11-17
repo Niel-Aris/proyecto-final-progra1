@@ -1,4 +1,5 @@
 #include "Imagenes.h"
+#include "Estilo.h"
 #include <QPainter>
 #include <QLinearGradient>
 #include <QFont>
@@ -61,7 +62,9 @@ QPixmap Imagenes::producto(QString codigo, QString nombre, bool activo)
     if (activo == false) {
         QPainter pintor(&imagen);
         pintor.setCompositionMode(QPainter::CompositionMode_SourceAtop);
-        pintor.fillRect(imagen.rect(), QColor(245, 245, 247, 150));
+        QColor tapa = Estilo::color("fondo");
+        tapa.setAlpha(150);
+        pintor.fillRect(imagen.rect(), tapa);
         pintor.end();
     }
     return imagen;
