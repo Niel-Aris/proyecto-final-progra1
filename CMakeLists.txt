@@ -27,6 +27,9 @@ add_executable(LaPulpe
     # Integrante 3: Comprobantes e historial
     Venta.cpp Venta.h
     Historial.cpp Historial.h
+    Ticket.cpp Ticket.h
+    TicketTxt.cpp TicketTxt.h
+    TicketCsv.cpp TicketCsv.h
     HistorialForm.ui
 
 )
