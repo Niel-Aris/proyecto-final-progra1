@@ -24,7 +24,6 @@ private:
     void actualizarProductos();
     void actualizarTabla();
     void actualizarTotal();
-    void guardarTicket(Venta venta);
 
     Ui::VentasForm ui;
     Inventario* inventario;
