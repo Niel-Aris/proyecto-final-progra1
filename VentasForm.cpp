@@ -1,9 +1,9 @@
 #include "VentasForm.h"
 #include <QMessageBox>
 #include <QTableWidgetItem>
-#include <QFile>
-#include <QTextStream>
 #include "ArchivoProductos.h"
+#include "ArchivoVentas.h"
+#include "TicketTxt.h"
 
 VentasForm::VentasForm(Inventario* inventario, Historial* historial, QWidget* parent)
     : QWidget(parent)
@@ -94,7 +94,14 @@ void VentasForm::cobrar()
         QMessageBox::critical(this, "Error", "No se pudo guardar productos.txt");
     }
 
-    guardarTicket(venta);
+    if (ArchivoVentas::guardar(historial) == false) {
+        QMessageBox::critical(this, "Error", "No se pudo guardar ventas.txt");
+    }
+
+    TicketTxt ticket;
+    if (ticket.guardar(venta) == false) {
+        QMessageBox::warning(this, "Ticket", "No se pudo guardar el ticket.");
+    }
 
     QMessageBox::information(this, "Venta realizada",
         "Venta #" + QString::number(venta.getNumero()) +
@@ -116,33 +123,3 @@ void VentasForm::cancelar()
     actualizarTotal();
 }
 
-void VentasForm::guardarTicket(Venta venta)
-{
-    QString nombre = "ticket-" + QString::number(venta.getNumero()) + ".txt";
-    QFile archivo(nombre);
-
-    if (archivo.open(QIODevice::WriteOnly | QIODevice::Text) == false) {
-        QMessageBox::warning(this, "Ticket", "No se pudo guardar el ticket.");
-        return;
-    }
-
-    QTextStream salida(&archivo);
-    salida << "La Pulpe\n";
-    salida << "Venta #" << venta.getNumero() << "\n";
-    salida << "Fecha: " << venta.getFecha() << "\n";
-    salida << "--------------------------------\n";
-
-    for (int i = 0; i < venta.getCantidadLineas(); i++) {
-        LineaVenta linea = venta.getLinea(i);
-        salida << linea.getNombre() << " x" << linea.getCantidad()
-               << "  ₡" << linea.getPrecio()
-               << "  ₡" << linea.getSubtotal() << "\n";
-    }
-
-    salida << "--------------------------------\n";
-    salida << "Total: ₡" << venta.getTotal() << "\n";
-    salida << "Paga con: ₡" << venta.getPago() << "\n";
-    salida << "Cambio: ₡" << venta.getCambio() << "\n";
-
-    archivo.close();
-}
