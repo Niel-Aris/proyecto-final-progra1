@@ -100,3 +100,41 @@ int Carrito::buscar(QString codigo) const
     }
     return -1;
 }
+
+// Cambia la cantidad de una línea, revisando que alcancen las existencias.
+// Si la cantidad queda en 0, la línea se quita.
+QString Carrito::cambiarCantidad(int posicion, int cantidad, int existencias)
+{
+    if (cantidad <= 0) {
+        quitar(posicion);
+        return "";
+    }
+    if (cantidad > existencias) {
+        return "Solo hay " + QString::number(existencias) + " de " + lineas[posicion].getNombre() + ".";
+    }
+    lineas[posicion].setCantidad(cantidad);
+    return "";
+}
+
+void Carrito::quitar(int posicion)
+{
+    lineas.erase(lineas.begin() + posicion);
+}
+
+int Carrito::cantidadDe(QString codigo) const
+{
+    int posicion = buscar(codigo);
+    if (posicion == -1) {
+        return 0;
+    }
+    return lineas[posicion].getCantidad();
+}
+
+int Carrito::getUnidades() const
+{
+    int unidades = 0;
+    for (int i = 0; i < lineas.size(); i++) {
+        unidades = unidades + lineas[i].getCantidad();
+    }
+    return unidades;
+}
