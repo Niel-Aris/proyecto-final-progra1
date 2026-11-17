@@ -55,6 +55,15 @@ Todo se guarda en la carpeta donde se ejecuta el programa:
 
 Si en esa carpeta todavía están los `productos.txt` y `ventas.txt` de versiones anteriores, la app los lee una vez y desde el siguiente cambio ya guarda en JSON. Los ajustes (tema, nombre de la tienda, aviso de pocas existencias) los guarda Qt con `QSettings`.
 
+## Documentos
+
+| Archivo | Qué es |
+|---|---|
+| [`docs/informe-final.pdf`](docs/informe-final.pdf) | Informe final (Parte 1 y Parte 2) |
+| [`docs/uml.drawio`](docs/uml.drawio) | Diagrama UML editable (también en `.png`, `.svg` y `.pdf`) |
+| [`docs/pruebas.md`](docs/pruebas.md) | Tabla de pruebas con los 10 casos y su evidencia |
+| [`prototipo-qt/`](prototipo-qt) | Prototipo de pantallas de la Parte 1 |
+
 ## Cómo trabajamos
 
 - `main`: versiones entregadas. Solo recibe pull requests desde `development`.
