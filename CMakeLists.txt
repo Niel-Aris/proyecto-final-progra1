@@ -14,8 +14,14 @@ add_executable(LaPulpe
     MainWindow.cpp MainWindow.h MainWindow.ui
 
     # Integrante 1: Productos e inventario
+    Producto.cpp Producto.h
+    Inventario.cpp Inventario.h
+    ArchivoProductos.cpp ArchivoProductos.h
+    ProductosForm.ui
 
     # Integrante 2: Ventas y cobro
+    LineaVenta.cpp LineaVenta.h
+    VentasForm.ui
 
     # Integrante 3: Comprobantes e historial
     HistorialForm.ui
@@ -24,7 +30,8 @@ add_executable(LaPulpe
 
 target_link_libraries(LaPulpe PRIVATE Qt6::Widgets)
 
-# Copia los productos de ejemplo a la carpeta donde se ejecuta el programa
-if(EXISTS ${CMAKE_SOURCE_DIR}/productos.txt)
+# Copia los productos de ejemplo a la carpeta donde se ejecuta el programa.
+# Solo la primera vez: si ya existe, tiene los datos reales y no se debe pisar.
+if(EXISTS ${CMAKE_SOURCE_DIR}/productos.txt AND NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/productos.txt)
     file(COPY productos.txt DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 endif()
