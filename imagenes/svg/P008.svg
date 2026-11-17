@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="340" viewBox="0 0 760 340">
+<defs><radialGradient id="sombra" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#000000" stop-opacity="0.20"/><stop offset="1" stop-color="#000000" stop-opacity="0"/></radialGradient><linearGradient id="fondo" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f7faea"/><stop offset="1" stop-color="#e1eab8"/></linearGradient>
+<linearGradient id="aceite" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#e0a800"/><stop offset="0.35" stop-color="#ffd84d"/><stop offset="0.7" stop-color="#f7c51e"/><stop offset="1" stop-color="#d49b00"/></linearGradient></defs>
+<rect width="760" height="340" rx="28" fill="url(#fondo)"/>
+<circle cx="650" cy="50" r="110" fill="#ffffff" opacity="0.30"/>
+<circle cx="90" cy="310" r="80" fill="#ffffff" opacity="0.25"/>
+<ellipse cx="380" cy="296" rx="150" ry="18" fill="url(#sombra)"/>
+<path d="M364 70 L396 70 L396 96 Q396 108 414 124 Q434 142 434 170 L434 272 Q434 290 416 290 L344 290 Q326 290 326 272 L326 170 Q326 142 346 124 Q364 108 364 96 Z" fill="url(#aceite)"/>
+<rect x="358" y="50" width="44" height="24" rx="5" fill="#3a8d3f"/>
+<rect x="358" y="68" width="44" height="6" fill="#2c6e30"/>
+<rect x="326" y="188" width="108" height="60" fill="#3a8d3f"/>
+<text x="380" y="220" text-anchor="middle" font-family="Helvetica" font-weight="bold" font-size="20" fill="#ffffff">ACEITE</text>
+<text x="380" y="238" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#d7f0d8">vegetal · 1 L</text>
+<rect x="336" y="134" width="9" height="140" rx="4.5" fill="#ffffff" opacity="0.30"/>
+<path d="M248 138 C254 147 256 152 256 155 A8 8 0 0 1 240 155 C240 152 242 147 248 138 Z" fill="#f4c430" opacity="0.85"/><path d="M262 178 C268 187 270 192 270 195 A8 8 0 0 1 254 195 C254 192 256 187 262 178 Z" fill="#f4c430" opacity="0.85"/><path d="M520 118 C526 127 528 132 528 135 A8 8 0 0 1 512 135 C512 132 514 127 520 118 Z" fill="#f4c430" opacity="0.85"/><path d="M536 164 C542 173 544 178 544 181 A8 8 0 0 1 528 181 C528 178 530 173 536 164 Z" fill="#f4c430" opacity="0.85"/>
+</svg>
