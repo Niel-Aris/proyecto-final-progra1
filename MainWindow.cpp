@@ -29,6 +29,6 @@ MainWindow::MainWindow(QWidget* parent)
 void MainWindow::cambiarPestana(int indice)
 {
     productosForm->actualizar();
+    ventasForm->actualizar();
     historialForm->actualizar();
-    // Falta ventasForm->actualizar(): se agrega cuando se una el arreglo de VentasForm de Nahomy
 }
