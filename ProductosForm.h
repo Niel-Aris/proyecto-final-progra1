@@ -1,5 +1,7 @@
 #pragma once
 #include <QWidget>
+#include <QTimer>
+#include <QTableWidgetItem>
 #include "ui_ProductosForm.h"
 #include "Inventario.h"
 
@@ -14,11 +16,26 @@ public:
 
 private:
     void seleccionarProducto(int fila, int columna);
-    void agregarProducto();
-    void modificarProducto();
+    void nuevoProducto();
+    void guardarProducto();
     void cambiarEstado();
-    void guardarArchivo();
+    void recibirMercaderia();
+    void editarEnTabla(QTableWidgetItem* item);
+    void aplicarFiltro();
+
+    void llenarTabla();
+    void mostrarFicha();
+    void cargarCampos();
+    void mostrarResumen();
+    void mostrarMensaje(QString texto, bool esError);
+    void enfocarCampo(QString error);
+    QString siguienteCodigo() const;
+    int posicionDeFila(int fila) const;
+    bool guardarArchivo();
 
     Ui::ProductosForm ui;
     Inventario* inventario;
+    int posicionActual;     // posición del producto que se edita, o -1 si es uno nuevo
+    bool llenando;          // true mientras se llena la tabla, para no tomarlo como edición
+    QTimer timerMensaje;    // borra el mensaje después de unos segundos
 };

@@ -140,8 +140,10 @@ void Estilo::aplicar(QMainWindow* ventana)
         tablas[i]->verticalHeader()->setDefaultSectionSize(36);
         tablas[i]->horizontalHeader()->setHighlightSections(false);
         tablas[i]->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-        tablas[i]->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-        tablas[i]->setFocusPolicy(Qt::NoFocus);
+        // Si la pantalla no acomoda sus columnas, se reparten a lo ancho
+        if (tablas[i]->property("columnasPropias").toBool() == false) {
+            tablas[i]->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+        }
     }
 
     // Las etiquetas del formulario de productos centradas con su campo
