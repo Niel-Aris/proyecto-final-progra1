@@ -1,4 +1,8 @@
 #include "Carrito.h"
+#include <QDate>
+#include "Inventario.h"
+#include "Historial.h"
+#include "Venta.h"
 
 QString Carrito::agregar(Producto producto, int cantidad)
 {
@@ -24,6 +28,42 @@ QString Carrito::agregar(Producto producto, int cantidad)
     } else {
         lineas[posicion].setCantidad(enCarrito + cantidad);
     }
+    return "";
+}
+
+QString Carrito::cobrar(int pago, Inventario* inventario, Historial* historial)
+{
+    if (lineas.size() == 0) {
+        return "El carrito está vacío.";
+    }
+    if (pago < getTotal()) {
+        return "El pago no es suficiente.";
+    }
+
+    for (int i = 0; i < lineas.size(); i++) {
+        int posicion = inventario->buscar(lineas[i].getCodigo());
+        if (posicion == -1) {
+            return "El producto " + lineas[i].getNombre() + " ya no existe.";
+        }
+        if (inventario->getProducto(posicion).getActivo() == false) {
+            return "El producto " + lineas[i].getNombre() + " no está activo.";
+        }
+        if (lineas[i].getCantidad() > inventario->getProducto(posicion).getExistencias()) {
+            return "No hay existencias suficientes de " + lineas[i].getNombre() + ".";
+        }
+    }
+
+    for (int i = 0; i < lineas.size(); i++) {
+        int posicion = inventario->buscar(lineas[i].getCodigo());
+        inventario->rebajarExistencias(posicion, lineas[i].getCantidad());
+    }
+
+    Venta venta(historial->getCantidad() + 1, QDate::currentDate().toString("dd/MM/yyyy"), pago);
+    for (int i = 0; i < lineas.size(); i++) {
+        venta.agregarLinea(lineas[i]);
+    }
+    historial->agregar(venta);
+    vaciar();
     return "";
 }
 
