@@ -1,5 +1,6 @@
 #include "ProductosForm.h"
 #include "ArchivoProductos.h"
+#include "Imagenes.h"
 #include <QShortcut>
 #include <QKeySequence>
 #include <QHeaderView>
@@ -150,7 +151,7 @@ void ProductosForm::llenarTabla()
         codigo->setFlags(codigo->flags() & ~Qt::ItemIsEditable);
 
         QTableWidgetItem* nombre = new QTableWidgetItem(p.getNombre());
-        nombre->setIcon(miniatura(p.getCodigo(), p.getNombre(), p.getActivo()));
+        nombre->setIcon(QIcon(Imagenes::cuadrada(p.getCodigo(), p.getNombre(), p.getActivo(), 28)));
         nombre->setFlags(nombre->flags() & ~Qt::ItemIsEditable);
 
         // Precio y existencias se guardan como número: así se ordenan bien
@@ -633,94 +634,15 @@ bool ProductosForm::guardarArchivo()
 
 // ---------------------------------------------------------------- Imágenes
 
-// Imagen del producto. Las de los productos de ejemplo están en imagenes/ con el código como nombre.
-// Si un producto no tiene imagen, se dibuja una tarjeta con sus iniciales.
-QPixmap ProductosForm::imagenProducto(QString codigo, QString nombre, bool activo) const
-{
-    QPixmap imagen(":/imagenes/" + codigo + ".png");
-
-    if (imagen.isNull() == true) {
-        // Tarjeta del mismo tamaño que las imágenes (760 x 340), con un color que sale del nombre
-        imagen = QPixmap(760, 340);
-        imagen.fill(Qt::transparent);
-        int tono = qHash(nombre) % 360;
-
-        QPainter pintor(&imagen);
-        pintor.setRenderHint(QPainter::Antialiasing);
-        QLinearGradient degradado(0, 0, 760, 340);
-        degradado.setColorAt(0, QColor::fromHsl(tono, 160, 238));
-        degradado.setColorAt(1, QColor::fromHsl(tono, 130, 205));
-        pintor.setPen(Qt::NoPen);
-        pintor.setBrush(degradado);
-        pintor.drawRoundedRect(QRectF(0, 0, 760, 340), 28, 28);
-        pintor.setBrush(QColor(255, 255, 255, 70));
-        pintor.drawEllipse(QPointF(650, 50), 110, 110);
-        pintor.drawEllipse(QPointF(90, 310), 80, 80);
-
-        // Solo cuentan las palabras de más de 2 letras, así "Azúcar 1 kg" da "AZ" y no "AK"
-        QString iniciales;
-        QStringList palabras;
-        QStringList todas = nombre.split(" ", Qt::SkipEmptyParts);
-        for (int i = 0; i < todas.size(); i++) {
-            if (todas[i].size() > 2 && todas[i][0].isLetter() == true) {
-                palabras.append(todas[i]);
-            }
-        }
-        if (palabras.size() == 1) {
-            iniciales = palabras[0].left(2).toUpper();
-        } else if (palabras.size() >= 2) {
-            iniciales = QString(palabras[0][0].toUpper()) + palabras[1][0].toUpper();
-        }
-        if (iniciales == "") {
-            iniciales = "+";
-        }
-        pintor.setBrush(QColor(255, 255, 255, 215));
-        pintor.drawEllipse(QPointF(380, 170), 92, 92);
-        QFont letra = font();
-        letra.setPixelSize(70);
-        letra.setBold(true);
-        pintor.setFont(letra);
-        pintor.setPen(QColor::fromHsl(tono, 110, 85));
-        pintor.drawText(QRectF(288, 78, 184, 184), Qt::AlignCenter, iniciales);
-        pintor.end();
-    }
-
-    // Un producto inactivo se ve deslavado
-    if (activo == false) {
-        QPainter pintor(&imagen);
-        pintor.setCompositionMode(QPainter::CompositionMode_SourceAtop);
-        pintor.fillRect(imagen.rect(), QColor(245, 245, 247, 150));
-        pintor.end();
-    }
-    return imagen;
-}
-
-// Cuadrito para la lista: el centro de la imagen, con esquinas redondeadas
-QIcon ProductosForm::miniatura(QString codigo, QString nombre, bool activo) const
-{
-    QPixmap imagen = imagenProducto(codigo, nombre, activo);
-    QPixmap centro = imagen.copy(230, 20, 300, 300).scaled(56, 56, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-    QPixmap redondeada(56, 56);
-    redondeada.fill(Qt::transparent);
-    QPainter pintor(&redondeada);
-    pintor.setRenderHint(QPainter::Antialiasing);
-    pintor.setPen(Qt::NoPen);
-    pintor.setBrush(QBrush(centro));
-    pintor.drawRoundedRect(QRectF(0, 0, 56, 56), 12, 12);
-    pintor.end();
-    redondeada.setDevicePixelRatio(2.0);
-    return QIcon(redondeada);
-}
-
 // Cambia la imagen de la ficha. Con animación aparece suave y crece un poco, como en iOS.
 void ProductosForm::mostrarImagen(bool animar)
 {
     if (posicionActual == -1) {
         QString nombre = ui.txtNombre->text().trimmed();
-        imagenActual = imagenProducto("", nombre, true);
+        imagenActual = Imagenes::producto("", nombre, true);
     } else {
         Producto p = inventario->getProducto(posicionActual);
-        imagenActual = imagenProducto(p.getCodigo(), p.getNombre(), p.getActivo());
+        imagenActual = Imagenes::producto(p.getCodigo(), p.getNombre(), p.getActivo());
     }
 
     if (animar == false) {

@@ -50,8 +50,6 @@ private:
     bool guardarArchivo();
 
     // Imágenes
-    QPixmap imagenProducto(QString codigo, QString nombre, bool activo) const;
-    QIcon miniatura(QString codigo, QString nombre, bool activo) const;
     void mostrarImagen(bool animar);
     void pintarImagen(double escala);
     void resizeEvent(QResizeEvent* evento) override;

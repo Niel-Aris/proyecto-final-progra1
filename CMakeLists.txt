@@ -18,6 +18,7 @@ add_executable(LaPulpe
 
     # Diseño visual: estilo y animaciones
     Estilo.cpp Estilo.h
+    Imagenes.cpp Imagenes.h
     recursos.qrc
 
     # Integrante 1: Productos e inventario

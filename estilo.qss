@@ -389,3 +389,182 @@ QPushButton#btnDeshacer {
 QPushButton#btnDeshacer:hover {
     color: #9be3ff;
 }
+
+/* Vender: catálogo de tarjetas y carrito */
+QLabel#lblAyuda {
+    color: #6e6e73;
+    font-size: 12px;
+}
+QListWidget#lstProductos {
+    background: transparent;
+    border: none;
+    outline: none;
+}
+QListWidget#lstProductos::item {
+    background: #ffffff;
+    border: 1px solid #e0e0e5;
+    border-radius: 14px;
+    padding: 8px 4px;
+    margin: 4px;
+    color: #1d1d1f;
+}
+QListWidget#lstProductos::item:hover {
+    border: 1px solid #0071e3;
+}
+QListWidget#lstProductos::item:disabled {
+    color: #a1a1a6;
+    background: #fafafc;
+}
+QFrame#frmCarrito {
+    background: #ffffff;
+    border: 1px solid #e0e0e5;
+    border-radius: 16px;
+}
+QLabel#lblVentaTitulo {
+    font-size: 17px;
+    font-weight: 700;
+}
+QLabel#lblArticulos {
+    color: #6e6e73;
+}
+QPushButton#btnCancelar {
+    background: transparent;
+    border: none;
+    color: #e0352b;
+    font-weight: 600;
+    padding: 4px 6px;
+}
+QPushButton#btnCancelar:hover {
+    color: #b8261e;
+}
+QListWidget#lstCarrito {
+    background: transparent;
+    border: none;
+    outline: none;
+}
+QListWidget#lstCarrito::item {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #f0f0f3;
+}
+QLabel#filaNombre {
+    font-weight: 600;
+}
+QLabel#filaPrecio {
+    color: #6e6e73;
+    font-size: 12px;
+}
+QLabel#filaCantidad {
+    font-weight: 700;
+}
+QLabel#filaSubtotal {
+    font-weight: 600;
+}
+QPushButton#filaMenos, QPushButton#filaMas {
+    min-width: 26px;
+    max-width: 26px;
+    min-height: 26px;
+    max-height: 26px;
+    padding: 0px;
+    border: none;
+    border-radius: 13px;
+    background: #f2f2f5;
+    font-size: 16px;
+    font-weight: 700;
+}
+QPushButton#filaMenos:hover, QPushButton#filaMas:hover {
+    background: #e6e6eb;
+}
+QPushButton#filaQuitar {
+    background: transparent;
+    border: none;
+    color: #aeaeb2;
+    font-size: 18px;
+    padding: 0px 4px;
+}
+QPushButton#filaQuitar:hover {
+    color: #e0352b;
+}
+QLabel#lblVacio {
+    color: #8e8e93;
+    padding: 40px 0px;
+}
+QFrame#lineaTotal {
+    border: none;
+    background: #ececf0;
+    min-height: 1px;
+    max-height: 1px;
+}
+QLabel#lblTotalTitulo {
+    color: #6e6e73;
+    font-size: 15px;
+    font-weight: 600;
+}
+QLabel#lblTotal {
+    font-size: 30px;
+    font-weight: 800;
+    padding-right: 0px;
+}
+QSpinBox#spnPago {
+    font-size: 17px;
+    font-weight: 600;
+}
+QPushButton#btnRapido1, QPushButton#btnRapido2, QPushButton#btnRapido3, QPushButton#btnRapido4 {
+    background: #f2f2f5;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    padding: 7px 4px;
+    font-weight: 600;
+}
+QPushButton#btnRapido1:hover, QPushButton#btnRapido2:hover, QPushButton#btnRapido3:hover, QPushButton#btnRapido4:hover {
+    background: #e6e6eb;
+}
+QPushButton[elegido="true"] {
+    background: #e8f1fd;
+    border: 1px solid #0071e3;
+    color: #0071e3;
+}
+QLabel#lblVuelto[estado="nada"] {
+    color: #8e8e93;
+}
+QLabel#lblVuelto[estado="falta"] {
+    color: #d70015;
+    font-weight: 600;
+}
+QLabel#lblVuelto[estado="vuelto"] {
+    color: #1a7f37;
+    font-size: 17px;
+    font-weight: 700;
+}
+QPushButton#btnCobrar {
+    padding: 12px;
+    font-size: 16px;
+}
+QPushButton#btnCobrar:disabled {
+    background: #b9d5f6;
+    border: 1px solid #b9d5f6;
+    color: #ffffff;
+}
+QFrame#frmExito {
+    background: #ffffff;
+    border-radius: 16px;
+}
+QLabel#lblExitoTitulo {
+    font-size: 20px;
+    font-weight: 700;
+}
+QLabel#lblExitoVuelto {
+    font-size: 30px;
+    font-weight: 800;
+    color: #1a7f37;
+}
+QLabel#lblExitoDetalle {
+    color: #6e6e73;
+}
+QPushButton#btnNuevaVenta {
+    background: #0071e3;
+    color: #ffffff;
+    border: 1px solid #0071e3;
+    padding: 10px;
+    font-weight: 600;
+}
