@@ -82,8 +82,8 @@ void Estilo::cargar(QApplication* app)
 void Estilo::aplicar(QMainWindow* ventana)
 {
     ventana->setWindowTitle("La Pulpe");
-    ventana->setMinimumSize(880, 580);
-    ventana->resize(1020, 660);
+    ventana->setMinimumSize(900, 640);
+    ventana->resize(1060, 720);
 
     // Márgenes de la ventana
     QBoxLayout* principal = qobject_cast<QBoxLayout*>(ventana->centralWidget()->layout());
@@ -140,8 +140,10 @@ void Estilo::aplicar(QMainWindow* ventana)
         tablas[i]->verticalHeader()->setDefaultSectionSize(36);
         tablas[i]->horizontalHeader()->setHighlightSections(false);
         tablas[i]->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-        tablas[i]->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-        tablas[i]->setFocusPolicy(Qt::NoFocus);
+        // Si la pantalla no acomoda sus columnas, se reparten a lo ancho
+        if (tablas[i]->property("columnasPropias").toBool() == false) {
+            tablas[i]->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+        }
     }
 
     // Las etiquetas del formulario de productos centradas con su campo
@@ -243,4 +245,15 @@ void Estilo::aparecer(QWidget* widget, int duracion, int desplazamiento)
         grupo->deleteLater();
     });
     grupo->start();
+}
+
+void Estilo::terminarEfectosArriba(QWidget* widget)
+{
+    QWidget* padre = widget->parentWidget();
+    while (padre != nullptr) {
+        if (padre->graphicsEffect() != nullptr) {
+            padre->setGraphicsEffect(nullptr);
+        }
+        padre = padre->parentWidget();
+    }
 }

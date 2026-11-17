@@ -3,6 +3,7 @@
 
 // Guarda y lee los productos en productos.txt
 // Cada línea: codigo;nombre;precio;existencias;activo
+// La actividad de los productos va en movimientos.txt, cada línea: fecha;codigo;texto
 // Los métodos son static: se usan sin crear un objeto, así: ArchivoProductos::guardar(inventario)
 class ArchivoProductos
 {

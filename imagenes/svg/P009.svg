@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="340" viewBox="0 0 760 340">
+<defs><radialGradient id="sombra" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#000000" stop-opacity="0.20"/><stop offset="1" stop-color="#000000" stop-opacity="0"/></radialGradient><linearGradient id="fondo" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff5e8"/><stop offset="1" stop-color="#f4d6ad"/></linearGradient>
+<linearGradient id="corteza" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e3a256"/><stop offset="1" stop-color="#b8742f"/></linearGradient>
+<linearGradient id="bolsa" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffffff" stop-opacity="0.15"/><stop offset="0.3" stop-color="#ffffff" stop-opacity="0.55"/><stop offset="1" stop-color="#ffffff" stop-opacity="0.12"/></linearGradient></defs>
+<rect width="760" height="340" rx="28" fill="url(#fondo)"/>
+<circle cx="650" cy="50" r="110" fill="#ffffff" opacity="0.30"/>
+<circle cx="90" cy="310" r="80" fill="#ffffff" opacity="0.25"/>
+<ellipse cx="380" cy="296" rx="150" ry="18" fill="url(#sombra)"/>
+<path d="M286 150 Q286 112 320 108 Q352 96 380 106 Q408 96 440 108 Q474 112 474 150 L474 272 Q474 286 460 286 L300 286 Q286 286 286 272 Z" fill="url(#corteza)"/>
+<path d="M298 156 Q298 128 324 124 Q352 114 380 122 Q408 114 436 124 Q462 128 462 156 L462 268 Q462 276 454 276 L306 276 Q298 276 298 268 Z" fill="#f6dfb2"/>
+<path d="M322 150 L322 268" stroke="#e7c48d" stroke-width="2"/><path d="M352 150 L352 268" stroke="#e7c48d" stroke-width="2"/><path d="M382 150 L382 268" stroke="#e7c48d" stroke-width="2"/><path d="M412 150 L412 268" stroke="#e7c48d" stroke-width="2"/><path d="M442 150 L442 268" stroke="#e7c48d" stroke-width="2"/>
+<path d="M270 150 Q270 96 380 90 Q490 96 490 150 L492 282 Q380 298 268 282 Z" fill="url(#bolsa)" stroke="#ffffff" stroke-opacity="0.7" stroke-width="2"/>
+<path d="M366 92 L380 70 L394 92 Z" fill="#ffffff" opacity="0.7"/>
+<rect x="368" y="84" width="24" height="10" rx="3" fill="#2f6fd6"/>
+<rect x="302" y="200" width="156" height="40" rx="8" fill="#2f6fd6"/>
+<text x="380" y="226" text-anchor="middle" font-family="Helvetica" font-weight="bold" font-size="14" fill="#ffffff">PAN CUADRADO</text>
+</svg>

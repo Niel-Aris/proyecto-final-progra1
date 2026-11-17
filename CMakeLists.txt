@@ -6,6 +6,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
+# Para que los .ui encuentren los widgets propios, como Interruptor.h
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
 
@@ -23,6 +25,7 @@ add_executable(LaPulpe
     Inventario.cpp Inventario.h
     ArchivoProductos.cpp ArchivoProductos.h
     ProductosForm.cpp ProductosForm.h ProductosForm.ui
+    Interruptor.cpp Interruptor.h
 
     # Integrante 2: Ventas y cobro
     LineaVenta.cpp LineaVenta.h

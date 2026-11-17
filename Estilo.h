@@ -20,6 +20,10 @@ public:
     // La pantalla aparece y sube un poco, como en las apps de Apple
     static void animarPagina(QWidget* pagina);
 
+    // Qt no puede dibujar un efecto dentro de otro. Antes de animar algo dentro de una
+    // pantalla se llama esto: si la pantalla todavía está apareciendo, se termina de una vez.
+    static void terminarEfectosArriba(QWidget* widget);
+
 private:
     static void aparecer(QWidget* widget, int duracion, int desplazamiento);
 };
