@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>HistorialForm</class>
+ <widget class="QWidget" name="HistorialForm">
+  <layout class="QHBoxLayout" name="layoutPrincipal">
+   <item>
+    <widget class="QTableWidget" name="tablaVentas">
+     <property name="editTriggers"><set>QAbstractItemView::NoEditTriggers</set></property>
+     <property name="selectionBehavior"><enum>QAbstractItemView::SelectRows</enum></property>
+     <attribute name="horizontalHeaderStretchLastSection"><bool>true</bool></attribute>
+     <column><property name="text"><string>Venta</string></property></column>
+     <column><property name="text"><string>Fecha</string></property></column>
+     <column><property name="text"><string>Total</string></property></column>
+    </widget>
+   </item>
+   <item>
+    <layout class="QVBoxLayout" name="layoutTicket">
+     <item>
+      <layout class="QHBoxLayout" name="layoutFormato">
+       <item><widget class="QLabel" name="lblFormato"><property name="text"><string>Formato</string></property></widget></item>
+       <item><widget class="QComboBox" name="cmbFormato"/></item>
+       <item><widget class="QPushButton" name="btnGenerar"><property name="text"><string>Generar ticket</string></property></widget></item>
+      </layout>
+     </item>
+     <item><widget class="QPlainTextEdit" name="txtTicket"><property name="readOnly"><bool>true</bool></property></widget></item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
