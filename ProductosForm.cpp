@@ -627,7 +627,7 @@ void ProductosForm::limpiarError()
 bool ProductosForm::guardarArchivo()
 {
     if (ArchivoProductos::guardar(inventario) == false) {
-        mostrarError("No se pudo guardar productos.txt");
+        mostrarError("No se pudo guardar productos.json");
         return false;
     }
     return true;

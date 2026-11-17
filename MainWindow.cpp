@@ -23,7 +23,8 @@ MainWindow::MainWindow(QWidget* parent)
 
     // Leer los datos guardados
     if (ArchivoProductos::cargar(&inventario) == false || ArchivoVentas::cargar(&historial) == false) {
-        QMessageBox::warning(this, "Error", "No se pudieron leer los archivos de datos.");
+        QMessageBox::warning(this, "Error", "No se pudieron leer los archivos de datos.\n"
+                             "Si alguno estaba dañado, se guardó una copia con \"-danado\" en el nombre.");
     }
 
     // Crear las tres pantallas y ponerlas en pestañas
