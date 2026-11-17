@@ -5,12 +5,14 @@
 #include <QHeaderView>
 #include <QLocale>
 #include <QColor>
+#include <QDate>
 #include <QPainter>
 #include <QLinearGradient>
 #include <QFont>
 #include <QStringList>
+#include <QListWidgetItem>
+#include <QStyle>
 #include <QGraphicsOpacityEffect>
-#include <QVariantAnimation>
 #include <QEasingCurve>
 
 // Desde esta cantidad para abajo un producto se marca como "por agotarse"
@@ -31,32 +33,43 @@ ProductosForm::ProductosForm(Inventario* inventario, QWidget* parent)
     posicionActual = -1;
     llenando = false;
 
-    // Tabla: al elegir una fila (clic o teclado) se carga en la ficha
+    // Lista: al elegir una fila (clic o teclado) se abre en la ficha
     connect(ui.tablaProductos, &QTableWidget::cellClicked, this, &ProductosForm::seleccionarProducto);
     connect(ui.tablaProductos, &QTableWidget::currentCellChanged, this, &ProductosForm::seleccionarProducto);
-    // Doble clic en precio o existencias para cambiarlos ahí mismo
     connect(ui.tablaProductos, &QTableWidget::itemChanged, this, &ProductosForm::editarEnTabla);
-
-    // Búsqueda y filtros
     connect(ui.txtBuscar, &QLineEdit::textChanged, this, &ProductosForm::aplicarFiltro);
     connect(ui.btnTodos, &QPushButton::clicked, this, &ProductosForm::aplicarFiltro);
     connect(ui.btnActivos, &QPushButton::clicked, this, &ProductosForm::aplicarFiltro);
     connect(ui.btnPocas, &QPushButton::clicked, this, &ProductosForm::aplicarFiltro);
     connect(ui.btnInactivos, &QPushButton::clicked, this, &ProductosForm::aplicarFiltro);
 
-    // Ficha
-    connect(ui.btnNuevo, &QPushButton::clicked, this, &ProductosForm::nuevoProducto);
-    connect(ui.btnGuardar, &QPushButton::clicked, this, &ProductosForm::guardarProducto);
-    connect(ui.btnDesactivar, &QPushButton::clicked, this, &ProductosForm::cambiarEstado);
-    connect(ui.btnRecibir, &QPushButton::clicked, this, &ProductosForm::recibirMercaderia);
-    connect(ui.txtCodigo, &QLineEdit::returnPressed, this, &ProductosForm::guardarProducto);
-    connect(ui.txtNombre, &QLineEdit::returnPressed, this, &ProductosForm::guardarProducto);
-    // En un producto nuevo la imagen muestra las iniciales mientras se escribe el nombre
-    connect(ui.txtNombre, &QLineEdit::textChanged, this, [this]() {
+    // Ficha: los campos se guardan solos al terminar de escribir (Enter o al salir del campo)
+    connect(ui.txtNombre, &QLineEdit::editingFinished, this, &ProductosForm::guardarDatos);
+    connect(ui.spnPrecio, &QSpinBox::editingFinished, this, &ProductosForm::guardarDatos);
+    connect(ui.spnExistencias, &QSpinBox::editingFinished, this, &ProductosForm::guardarDatos);
+    connect(ui.txtNombre, &QLineEdit::textEdited, this, [this]() {
         if (posicionActual == -1) {
-            mostrarImagen(false);
+            mostrarImagen(false);   // en un producto nuevo las iniciales cambian mientras se escribe
         }
     });
+    connect(ui.txtNombre, &QLineEdit::returnPressed, this, [this]() {
+        if (posicionActual == -1) {
+            crearProducto();
+        }
+    });
+    connect(ui.txtCodigo, &QLineEdit::returnPressed, this, &ProductosForm::crearProducto);
+
+    // Botones de existencias: − y + de a uno, y los de mercadería que llega
+    connect(ui.btnMenos, &QPushButton::clicked, this, [this]() { sumarExistencias(-1, "Ajuste"); });
+    connect(ui.btnMas, &QPushButton::clicked, this, [this]() { sumarExistencias(1, "Ajuste"); });
+    connect(ui.btnMas6, &QPushButton::clicked, this, [this]() { sumarExistencias(6, "Recibido"); });
+    connect(ui.btnMas12, &QPushButton::clicked, this, [this]() { sumarExistencias(12, "Recibido"); });
+    connect(ui.btnMas24, &QPushButton::clicked, this, [this]() { sumarExistencias(24, "Recibido"); });
+    connect(ui.swActivo, &QAbstractButton::toggled, this, &ProductosForm::cambiarDisponible);
+
+    connect(ui.btnNuevo, &QPushButton::clicked, this, &ProductosForm::nuevoProducto);
+    connect(ui.btnCrear, &QPushButton::clicked, this, &ProductosForm::crearProducto);
+    connect(ui.btnDeshacer, &QPushButton::clicked, this, &ProductosForm::deshacer);
 
     // Atajos de teclado
     QShortcut* buscar = new QShortcut(QKeySequence::Find, this);
@@ -66,41 +79,61 @@ ProductosForm::ProductosForm(Inventario* inventario, QWidget* parent)
     });
     QShortcut* nuevo = new QShortcut(QKeySequence::New, this);
     connect(nuevo, &QShortcut::activated, this, &ProductosForm::nuevoProducto);
-    QShortcut* guardar = new QShortcut(QKeySequence::Save, this);
-    connect(guardar, &QShortcut::activated, this, &ProductosForm::guardarProducto);
+    QShortcut* atras = new QShortcut(QKeySequence::Undo, this);
+    connect(atras, &QShortcut::activated, this, &ProductosForm::deshacer);
+    // Con la lista seleccionada, + y − suman o restan una unidad
+    QShortcut* mas = new QShortcut(QKeySequence("+"), ui.tablaProductos, nullptr, nullptr, Qt::WidgetShortcut);
+    connect(mas, &QShortcut::activated, this, [this]() { sumarExistencias(1, "Ajuste"); });
+    QShortcut* igual = new QShortcut(QKeySequence("="), ui.tablaProductos, nullptr, nullptr, Qt::WidgetShortcut);
+    connect(igual, &QShortcut::activated, this, [this]() { sumarExistencias(1, "Ajuste"); });
+    QShortcut* menos = new QShortcut(QKeySequence("-"), ui.tablaProductos, nullptr, nullptr, Qt::WidgetShortcut);
+    connect(menos, &QShortcut::activated, this, [this]() { sumarExistencias(-1, "Ajuste"); });
 
-    // Los atajos se ven en la búsqueda y al pasar el mouse por los botones
     QString teclaBuscar = QKeySequence(QKeySequence::Find).toString(QKeySequence::NativeText);
+    QString teclaDeshacer = QKeySequence(QKeySequence::Undo).toString(QKeySequence::NativeText);
     ui.txtBuscar->setPlaceholderText("Buscar por código o nombre   (" + teclaBuscar + ")");
     ui.btnNuevo->setToolTip("Nuevo producto (" + QKeySequence(QKeySequence::New).toString(QKeySequence::NativeText) + ")");
-    ui.btnGuardar->setToolTip("Guardar (" + QKeySequence(QKeySequence::Save).toString(QKeySequence::NativeText) + ")");
-    ui.tablaProductos->setToolTip("Doble clic en precio o existencias para cambiarlos ahí mismo");
+    ui.btnDeshacer->setToolTip("Deshacer (" + teclaDeshacer + ")");
+    ui.tablaProductos->setToolTip("Doble clic en precio o existencias para cambiarlos. Con la lista elegida, + y − suman o restan uno.");
+    ui.btnMenos->setToolTip("Restar uno");
+    ui.btnMas->setToolTip("Sumar uno");
 
-    // El mensaje de la ficha se borra solo
-    timerMensaje.setSingleShot(true);
-    timerMensaje.setInterval(4000);
-    connect(&timerMensaje, &QTimer::timeout, ui.lblMensaje, &QLabel::clear);
+    // La barra de "Deshacer" se esconde sola
+    ui.barraDeshacer->hide();
+    timerBarra.setSingleShot(true);
+    timerBarra.setInterval(6000);
+    connect(&timerBarra, &QTimer::timeout, ui.barraDeshacer, &QWidget::hide);
 
-    // El nombre usa el espacio que sobra y las otras columnas se ajustan a su contenido
+    // Columnas: el nombre usa el espacio que sobra, las demás se ajustan a lo que tienen
     QHeaderView* encabezado = ui.tablaProductos->horizontalHeader();
     encabezado->setSectionResizeMode(QHeaderView::ResizeToContents);
     encabezado->setSectionResizeMode(COL_NOMBRE, QHeaderView::Stretch);
     encabezado->setStretchLastSection(false);
+    ui.tablaProductos->setIconSize(QSize(28, 28));
+    ui.spnPrecio->setLocale(QLocale(QLocale::Spanish, QLocale::CostaRica));   // ₡1 300 como en el resumen
+    ui.lblError->hide();
+    // La actividad se lleva casi todo el espacio que sobra en la ficha
+    ui.layoutFicha->setStretchFactor(ui.lstActividad, 3);
     ui.tablaProductos->sortByColumn(COL_CODIGO, Qt::AscendingOrder);
+
     actualizar();
     nuevoProducto();
-    ui.lblMensaje->clear();
 }
 
-// Vuelve a llenar la tabla con los productos del inventario
+// Vuelve a llenar la lista y la ficha con lo que tiene el inventario
 void ProductosForm::actualizar()
 {
+    if (posicionActual >= inventario->getCantidad()) {
+        posicionActual = -1;   // por ejemplo, si se deshizo la creación de un producto
+    }
     llenarTabla();
     aplicarFiltro();
-    mostrarResumen();
     mostrarFicha();
+    mostrarActividad();
     mostrarImagen(false);
 }
+
+// ---------------------------------------------------------------- Lista
 
 void ProductosForm::llenarTabla()
 {
@@ -117,6 +150,7 @@ void ProductosForm::llenarTabla()
         codigo->setFlags(codigo->flags() & ~Qt::ItemIsEditable);
 
         QTableWidgetItem* nombre = new QTableWidgetItem(p.getNombre());
+        nombre->setIcon(miniatura(p.getCodigo(), p.getNombre(), p.getActivo()));
         nombre->setFlags(nombre->flags() & ~Qt::ItemIsEditable);
 
         // Precio y existencias se guardan como número: así se ordenan bien
@@ -162,7 +196,7 @@ void ProductosForm::llenarTabla()
 
     ui.tablaProductos->setSortingEnabled(true);
 
-    // Volver a marcar el producto que se estaba editando
+    // Volver a marcar el producto que está abierto en la ficha
     ui.tablaProductos->blockSignals(true);
     ui.tablaProductos->clearSelection();
     for (int fila = 0; fila < ui.tablaProductos->rowCount(); fila++) {
@@ -223,7 +257,7 @@ void ProductosForm::aplicarFiltro()
     }
 }
 
-// Una línea abajo de la tabla con lo más importante del inventario
+// Una línea abajo de la lista con lo más importante del inventario
 void ProductosForm::mostrarResumen()
 {
     int activos = 0;
@@ -247,7 +281,7 @@ void ProductosForm::mostrarResumen()
     ui.btnPocas->setText("Por agotarse (" + QString::number(pocas) + ")");
 }
 
-// Al elegir una fila, ese producto pasa a la ficha de la derecha
+// Al elegir una fila, ese producto se abre en la ficha
 void ProductosForm::seleccionarProducto(int fila, int columna)
 {
     if (fila == -1 || llenando == true) {
@@ -258,171 +292,13 @@ void ProductosForm::seleccionarProducto(int fila, int columna)
         return;
     }
     bool esOtro = posicion != posicionActual;
-    if (esOtro == true) {
-        ui.lblMensaje->clear();
-    }
     posicionActual = posicion;
-    cargarCampos();
-    mostrarFicha();
-    mostrarImagen(esOtro);
-}
-
-// Pone la ficha en modo "nuevo" o "editar" según lo que esté elegido
-void ProductosForm::mostrarFicha()
-{
-    bool editando = posicionActual != -1;
-    ui.btnDesactivar->setVisible(editando);
-    ui.lblRecibir->setVisible(editando);
-    ui.spnRecibir->setVisible(editando);
-    ui.btnRecibir->setVisible(editando);
-
-    if (editando == false) {
-        ui.lblTituloFicha->setText("Nuevo producto");
-        ui.lblSubtitulo->setText("Llena los datos y presiona Agregar. El código se sugiere solo.");
-        ui.txtCodigo->setReadOnly(false);
-        ui.btnGuardar->setText("Agregar producto");
-        return;
-    }
-
-    Producto p = inventario->getProducto(posicionActual);
-    ui.lblTituloFicha->setText(p.getNombre());
-    QString estado = "Activo";
-    if (p.getActivo() == false) {
-        estado = "Inactivo: no aparece en Vender";
-    }
-    ui.lblSubtitulo->setText(p.getCodigo() + "   ·   " + estado);
-    ui.txtCodigo->setReadOnly(true);   // el código no se cambia después de creado
-    ui.btnGuardar->setText("Guardar cambios");
-    if (p.getActivo() == true) {
-        ui.btnDesactivar->setText("Desactivar");
-    } else {
-        ui.btnDesactivar->setText("Activar de nuevo");
-    }
-}
-
-// Copia los datos del producto elegido a los campos de la ficha.
-// Va aparte de mostrarFicha para no borrar lo que se está escribiendo al cambiar de pestaña.
-void ProductosForm::cargarCampos()
-{
-    if (posicionActual == -1) {
-        return;
-    }
-    Producto p = inventario->getProducto(posicionActual);
-    ui.txtCodigo->setText(p.getCodigo());
-    ui.txtNombre->setText(p.getNombre());
-    ui.spnPrecio->setValue(p.getPrecio());
-    ui.spnExistencias->setValue(p.getExistencias());
-}
-
-// Limpia la ficha para agregar un producto, con el siguiente código ya puesto
-void ProductosForm::nuevoProducto()
-{
-    posicionActual = -1;
-    ui.tablaProductos->blockSignals(true);
-    ui.tablaProductos->clearSelection();
-    ui.tablaProductos->setCurrentCell(-1, -1);
-    ui.tablaProductos->blockSignals(false);
-
-    ui.txtCodigo->setText(siguienteCodigo());
-    ui.txtNombre->clear();
-    ui.spnPrecio->setValue(0);
-    ui.spnExistencias->setValue(0);
-    mostrarFicha();
-    mostrarImagen(true);
-    ui.txtNombre->setFocus();
-}
-
-// Busca el número más alto de los códigos tipo P001 y devuelve el siguiente
-QString ProductosForm::siguienteCodigo() const
-{
-    int mayor = 0;
-    for (int i = 0; i < inventario->getCantidad(); i++) {
-        QString codigo = inventario->getProducto(i).getCodigo();
-        if (codigo.startsWith("P") == true) {
-            bool esNumero = false;
-            int numero = codigo.mid(1).toInt(&esNumero);
-            if (esNumero == true && numero > mayor) {
-                mayor = numero;
-            }
-        }
-    }
-    return "P" + QString::number(mayor + 1).rightJustified(3, '0');
-}
-
-// Un solo botón: agrega si es nuevo o guarda los cambios si se está editando
-void ProductosForm::guardarProducto()
-{
-    QString error;
-    QString nombre = ui.txtNombre->text().trimmed();
-
-    if (posicionActual == -1) {
-        Producto nuevo(ui.txtCodigo->text().trimmed(), nombre, ui.spnPrecio->value(), ui.spnExistencias->value());
-        error = inventario->agregar(nuevo);
-        if (error != "") {
-            mostrarMensaje(error, true);
-            enfocarCampo(error);
-            return;
-        }
-        if (guardarArchivo() == true) {
-            // Queda lista para agregar otro, que es lo más común al cargar mercadería nueva
-            QString codigo = nuevo.getCodigo();
-            nuevoProducto();
-            actualizar();
-            mostrarMensaje("Se agregó " + nombre + " (" + codigo + "). Ya puedes agregar otro.", false);
-        }
-        return;
-    }
-
-    error = inventario->modificar(posicionActual, nombre, ui.spnPrecio->value(), ui.spnExistencias->value());
-    if (error != "") {
-        mostrarMensaje(error, true);
-        enfocarCampo(error);
-        return;
-    }
-    if (guardarArchivo() == true) {
-        actualizar();
-        mostrarMensaje("Cambios guardados.", false);
-    }
-}
-
-void ProductosForm::cambiarEstado()
-{
-    if (posicionActual == -1) {
-        return;
-    }
-    inventario->cambiarEstado(posicionActual);
-    if (guardarArchivo() == true) {
-        actualizar();
-        Producto p = inventario->getProducto(posicionActual);
-        if (p.getActivo() == true) {
-            mostrarMensaje(p.getNombre() + " vuelve a aparecer en Vender.", false);
-        } else {
-            mostrarMensaje(p.getNombre() + " ya no aparece en Vender. Puedes activarlo cuando quieras.", false);
-        }
-    }
-}
-
-// Suma lo que llegó del proveedor sin tener que hacer la cuenta a mano
-void ProductosForm::recibirMercaderia()
-{
-    if (posicionActual == -1) {
-        return;
-    }
-    Producto p = inventario->getProducto(posicionActual);
-    int llegaron = ui.spnRecibir->value();
-    int nuevas = p.getExistencias() + llegaron;
-
-    QString error = inventario->modificar(posicionActual, p.getNombre(), p.getPrecio(), nuevas);
-    if (error != "") {
-        mostrarMensaje(error, true);
-        return;
-    }
-    if (guardarArchivo() == true) {
-        ui.spnRecibir->setValue(1);
+    if (esOtro == true) {
+        limpiarError();
         cargarCampos();
-        actualizar();
-        mostrarMensaje("Se sumaron " + QString::number(llegaron) + " a " + p.getNombre()
-                           + ". Ahora hay " + QString::number(nuevas) + ".", false);
+        mostrarFicha();
+        mostrarActividad();
+        mostrarImagen(true);
     }
 }
 
@@ -449,60 +325,313 @@ void ProductosForm::editarEnTabla(QTableWidgetItem* item)
         existencias = item->data(Qt::DisplayRole).toInt();
     }
 
-    QString error = inventario->modificar(posicion, p.getNombre(), precio, existencias);
     posicionActual = posicion;
-    cargarCampos();
+    QString error = inventario->modificar(posicion, p.getNombre(), precio, existencias);
     if (error != "") {
-        mostrarMensaje(error, true);
-    } else if (guardarArchivo() == true) {
-        if (columna == COL_PRECIO) {
-            mostrarMensaje("Nuevo precio de " + p.getNombre() + ": ₡" + QString::number(precio) + ".", false);
-        } else {
-            mostrarMensaje(p.getNombre() + " ahora tiene " + QString::number(existencias) + ".", false);
-        }
+        mostrarError(error);
+    } else {
+        cambioHecho();
     }
-    // Se vuelve a llenar la tabla después, cuando Qt termina de cerrar el campo de edición
+    cargarCampos();
+    // Se vuelve a llenar la tabla cuando Qt termina de cerrar el campo de edición
     QTimer::singleShot(0, this, &ProductosForm::actualizar);
 }
 
-// Mensaje debajo de los campos en vez de una ventana emergente
-void ProductosForm::mostrarMensaje(QString texto, bool esError)
+// Busca el número más alto de los códigos tipo P001 y devuelve el siguiente
+QString ProductosForm::siguienteCodigo() const
 {
-    if (esError == true) {
-        ui.lblMensaje->setStyleSheet("color: #d70015;");
-    } else {
-        ui.lblMensaje->setStyleSheet("color: #1a7f37;");
+    int mayor = 0;
+    for (int i = 0; i < inventario->getCantidad(); i++) {
+        QString codigo = inventario->getProducto(i).getCodigo();
+        if (codigo.startsWith("P") == true) {
+            bool esNumero = false;
+            int numero = codigo.mid(1).toInt(&esNumero);
+            if (esNumero == true && numero > mayor) {
+                mayor = numero;
+            }
+        }
     }
-    ui.lblMensaje->setText(texto);
-    timerMensaje.start();
+    return "P" + QString::number(mayor + 1).rightJustified(3, '0');
 }
 
-// Pone el cursor en el campo que tiene el error
-void ProductosForm::enfocarCampo(QString error)
+// ---------------------------------------------------------------- Ficha
+
+// Copia los datos del producto abierto a los campos de la ficha
+void ProductosForm::cargarCampos()
 {
+    if (posicionActual == -1) {
+        return;
+    }
+    Producto p = inventario->getProducto(posicionActual);
+    llenando = true;
+    ui.txtNombre->setText(p.getNombre());
+    ui.txtNombre->setCursorPosition(0);
+    ui.txtCodigo->setText(p.getCodigo());
+    ui.spnPrecio->setValue(p.getPrecio());
+    ui.spnExistencias->setValue(p.getExistencias());
+    ui.swActivo->blockSignals(true);
+    ui.swActivo->setChecked(p.getActivo());
+    ui.swActivo->blockSignals(false);
+    ui.swActivo->update();
+    llenando = false;
+}
+
+// Muestra u oculta las partes de la ficha según si el producto es nuevo o ya existe
+void ProductosForm::mostrarFicha()
+{
+    bool editando = posicionActual != -1;
+    ui.lblSubtitulo->setVisible(editando);
+    ui.lblCodigo->setVisible(editando == false);
+    ui.txtCodigo->setVisible(editando == false);
+    ui.lblRecibir->setVisible(editando);
+    ui.btnMas6->setVisible(editando);
+    ui.btnMas12->setVisible(editando);
+    ui.btnMas24->setVisible(editando);
+    ui.lblActivo->setVisible(editando);
+    ui.swActivo->setVisible(editando);
+    ui.lblActividad->setVisible(editando);
+    ui.lstActividad->setVisible(editando);
+    ui.btnCrear->setVisible(editando == false);
+
+    if (editando == true) {
+        Producto p = inventario->getProducto(posicionActual);
+        QString estado = "Disponible en Vender";
+        if (p.getActivo() == false) {
+            estado = "No aparece en Vender";
+        } else if (p.getExistencias() == 0) {
+            estado = "Agotado";
+        } else if (p.getExistencias() <= POCAS_EXISTENCIAS) {
+            estado = "Quedan pocas";
+        }
+        ui.lblSubtitulo->setText(p.getCodigo() + "   ·   " + estado + "   ·   los cambios se guardan solos");
+    }
+}
+
+// La lista de cambios del producto abierto, del más nuevo al más viejo
+void ProductosForm::mostrarActividad()
+{
+    ui.lstActividad->clear();
+    if (posicionActual == -1) {
+        return;
+    }
+    QString hoy = QDate::currentDate().toString("dd/MM/yyyy");
+    Producto p = inventario->getProducto(posicionActual);
+    std::vector<Movimiento> lista = inventario->getMovimientos(p.getCodigo());
+    for (int i = 0; i < lista.size() && i < 20; i++) {
+        QString fecha = lista[i].getFecha();
+        if (fecha.startsWith(hoy) == true) {
+            fecha = "Hoy " + fecha.mid(11);
+        }
+        QListWidgetItem* item = new QListWidgetItem(lista[i].getTexto() + "\n" + fecha);
+        ui.lstActividad->addItem(item);
+    }
+    if (lista.size() == 0) {
+        ui.lstActividad->addItem("Todavía no hay cambios en este producto.");
+    }
+}
+
+// Limpia la ficha para crear un producto, con el siguiente código ya puesto
+void ProductosForm::nuevoProducto()
+{
+    posicionActual = -1;
+    ui.tablaProductos->blockSignals(true);
+    ui.tablaProductos->clearSelection();
+    ui.tablaProductos->setCurrentCell(-1, -1);
+    ui.tablaProductos->blockSignals(false);
+
+    llenando = true;
+    ui.txtCodigo->setText(siguienteCodigo());
+    ui.txtNombre->clear();
+    ui.spnPrecio->setValue(0);
+    ui.spnExistencias->setValue(0);
+    llenando = false;
+
+    limpiarError();
+    mostrarFicha();
+    mostrarActividad();
+    mostrarImagen(true);
+    ui.txtNombre->setFocus();
+}
+
+void ProductosForm::crearProducto()
+{
+    if (posicionActual != -1) {
+        return;
+    }
+    QString nombre = ui.txtNombre->text().trimmed();
+    Producto nuevo(ui.txtCodigo->text().trimmed(), nombre, ui.spnPrecio->value(), ui.spnExistencias->value());
+    QString error = inventario->agregar(nuevo);
+    if (error != "") {
+        mostrarError(error);
+        return;
+    }
+    // Queda lista para crear otro, que es lo más común cuando llega mercadería nueva
+    QString texto = "Se creó " + nombre + " (" + nuevo.getCodigo() + ")";
+    if (guardarArchivo() == true) {
+        nuevoProducto();
+        actualizar();
+        mostrarBarra(texto);
+    }
+}
+
+// Guarda nombre, precio y existencias del producto abierto, si algo cambió
+void ProductosForm::guardarDatos()
+{
+    if (posicionActual == -1 || llenando == true) {
+        return;
+    }
+    int antes = inventario->getCantidadMovimientos();
+    QString error = inventario->modificar(posicionActual, ui.txtNombre->text().trimmed(),
+                                          ui.spnPrecio->value(), ui.spnExistencias->value());
+    if (error != "") {
+        mostrarError(error);
+        return;
+    }
+    limpiarError();
+    if (inventario->getCantidadMovimientos() != antes) {
+        cambioHecho();
+        // La tabla se refresca después, por si el cambio vino de hacer clic en otra fila
+        QTimer::singleShot(0, this, &ProductosForm::actualizar);
+    }
+}
+
+// Suma o resta existencias del producto abierto (botones − y +, y la mercadería que llega)
+void ProductosForm::sumarExistencias(int cantidad, QString motivo)
+{
+    if (posicionActual == -1) {
+        // En un producto nuevo solo cambia el número del campo
+        ui.spnExistencias->setValue(ui.spnExistencias->value() + cantidad);
+        return;
+    }
+    QString error = inventario->ajustarExistencias(posicionActual, cantidad, motivo);
+    if (error != "") {
+        mostrarError(error);
+        return;
+    }
+    limpiarError();
+    cargarCampos();
+    cambioHecho();
+    actualizar();
+}
+
+void ProductosForm::cambiarDisponible(bool disponible)
+{
+    if (posicionActual == -1 || llenando == true) {
+        return;
+    }
+    if (inventario->getProducto(posicionActual).getActivo() != disponible) {
+        inventario->cambiarEstado(posicionActual);
+        cambioHecho();
+        actualizar();
+    }
+}
+
+void ProductosForm::deshacer()
+{
+    if (inventario->puedeDeshacer() == false) {
+        mostrarBarra("No hay nada para deshacer");
+        ui.btnDeshacer->hide();
+        return;
+    }
+    QString cambio = inventario->getUltimoCambio();
+    inventario->deshacer();
+    guardarArchivo();
+    if (posicionActual >= inventario->getCantidad()) {
+        nuevoProducto();
+    }
+    cargarCampos();
+    actualizar();
+    mostrarBarra("Se deshizo: " + cambio);
+}
+
+// ---------------------------------------------------------------- Avisos
+
+// Después de cada cambio: se guarda el archivo y aparece la barra para deshacer
+void ProductosForm::cambioHecho()
+{
+    if (guardarArchivo() == true) {
+        mostrarBarra("Guardado · " + inventario->getUltimoCambio());
+    }
+}
+
+// Barra oscura abajo de la ficha, como la de "Deshacer" de Gmail o Fotos
+void ProductosForm::mostrarBarra(QString texto)
+{
+    ui.lblDeshacer->setText(texto);
+    ui.btnDeshacer->setVisible(inventario->puedeDeshacer());
+    bool estabaOculta = ui.barraDeshacer->isHidden();
+    ui.barraDeshacer->show();
+    timerBarra.start();
+
+    if (estabaOculta == true) {
+        QGraphicsOpacityEffect* efecto = new QGraphicsOpacityEffect(ui.barraDeshacer);
+        ui.barraDeshacer->setGraphicsEffect(efecto);
+        QVariantAnimation* animacion = new QVariantAnimation(this);
+        animacion->setDuration(240);
+        animacion->setStartValue(0.0);
+        animacion->setEndValue(1.0);
+        animacion->setEasingCurve(QEasingCurve::OutCubic);
+        QPointer<QGraphicsOpacityEffect> cuidado = efecto;
+        connect(animacion, &QVariantAnimation::valueChanged, this, [cuidado](const QVariant& valor) {
+            if (cuidado != nullptr) {
+                cuidado->setOpacity(valor.toDouble());
+            }
+        });
+        connect(animacion, &QVariantAnimation::finished, this, [this]() {
+            ui.barraDeshacer->setGraphicsEffect(nullptr);
+        });
+        animacion->start(QAbstractAnimation::DeleteWhenStopped);
+    }
+}
+
+// El error aparece debajo de la ficha y el campo con el problema se marca en rojo
+void ProductosForm::mostrarError(QString error)
+{
+    limpiarError();
+    ui.lblError->setText(error);
+    ui.lblError->show();
+    QWidget* campo = nullptr;
     if (error.contains("código") == true) {
-        ui.txtCodigo->setFocus();
-        ui.txtCodigo->selectAll();
+        campo = ui.txtCodigo;
     } else if (error.contains("nombre") == true) {
-        ui.txtNombre->setFocus();
-        ui.txtNombre->selectAll();
+        campo = ui.txtNombre;
     } else if (error.contains("precio") == true) {
-        ui.spnPrecio->setFocus();
-        ui.spnPrecio->selectAll();
+        campo = ui.spnPrecio;
     } else if (error.contains("existencias") == true) {
-        ui.spnExistencias->setFocus();
-        ui.spnExistencias->selectAll();
+        campo = ui.spnExistencias;
+    }
+    if (campo != nullptr) {
+        campo->setProperty("error", true);
+        campo->style()->unpolish(campo);
+        campo->style()->polish(campo);
+        campo->setFocus();
+    }
+}
+
+void ProductosForm::limpiarError()
+{
+    ui.lblError->clear();
+    ui.lblError->hide();
+    QWidget* campos[4] = {ui.txtCodigo, ui.txtNombre, ui.spnPrecio, ui.spnExistencias};
+    for (int i = 0; i < 4; i++) {
+        if (campos[i]->property("error").toBool() == true) {
+            campos[i]->setProperty("error", false);
+            campos[i]->style()->unpolish(campos[i]);
+            campos[i]->style()->polish(campos[i]);
+        }
     }
 }
 
 bool ProductosForm::guardarArchivo()
 {
     if (ArchivoProductos::guardar(inventario) == false) {
-        mostrarMensaje("No se pudo guardar productos.txt", true);
+        mostrarError("No se pudo guardar productos.txt");
         return false;
     }
     return true;
 }
+
+// ---------------------------------------------------------------- Imágenes
 
 // Imagen del producto. Las de los productos de ejemplo están en imagenes/ con el código como nombre.
 // Si un producto no tiene imagen, se dibuja una tarjeta con sus iniciales.
@@ -528,9 +657,8 @@ QPixmap ProductosForm::imagenProducto(QString codigo, QString nombre, bool activ
         pintor.drawEllipse(QPointF(650, 50), 110, 110);
         pintor.drawEllipse(QPointF(90, 310), 80, 80);
 
-        // Iniciales de las dos primeras palabras
-        QString iniciales;
         // Solo cuentan las palabras de más de 2 letras, así "Azúcar 1 kg" da "AZ" y no "AK"
+        QString iniciales;
         QStringList palabras;
         QStringList todas = nombre.split(" ", Qt::SkipEmptyParts);
         for (int i = 0; i < todas.size(); i++) {
@@ -567,6 +695,23 @@ QPixmap ProductosForm::imagenProducto(QString codigo, QString nombre, bool activ
     return imagen;
 }
 
+// Cuadrito para la lista: el centro de la imagen, con esquinas redondeadas
+QIcon ProductosForm::miniatura(QString codigo, QString nombre, bool activo) const
+{
+    QPixmap imagen = imagenProducto(codigo, nombre, activo);
+    QPixmap centro = imagen.copy(230, 20, 300, 300).scaled(56, 56, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QPixmap redondeada(56, 56);
+    redondeada.fill(Qt::transparent);
+    QPainter pintor(&redondeada);
+    pintor.setRenderHint(QPainter::Antialiasing);
+    pintor.setPen(Qt::NoPen);
+    pintor.setBrush(QBrush(centro));
+    pintor.drawRoundedRect(QRectF(0, 0, 56, 56), 12, 12);
+    pintor.end();
+    redondeada.setDevicePixelRatio(2.0);
+    return QIcon(redondeada);
+}
+
 // Cambia la imagen de la ficha. Con animación aparece suave y crece un poco, como en iOS.
 void ProductosForm::mostrarImagen(bool animar)
 {
@@ -579,7 +724,9 @@ void ProductosForm::mostrarImagen(bool animar)
     }
 
     if (animar == false) {
-        pintarImagen(1.0);
+        if (animacionImagen == nullptr) {
+            pintarImagen(1.0);
+        }
         return;
     }
 

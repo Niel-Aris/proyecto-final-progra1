@@ -20,6 +20,18 @@ bool ArchivoProductos::guardar(Inventario* inventario)
                << p.getExistencias() << ";" << activo << "\n";
     }
     archivo.close();
+
+    // La actividad de cada producto va en otro archivo
+    QFile archivoMovimientos("movimientos.txt");
+    if (archivoMovimientos.open(QIODevice::WriteOnly) == false) {
+        return false;
+    }
+    QTextStream salidaMovimientos(&archivoMovimientos);
+    for (int i = 0; i < inventario->getCantidadMovimientos(); i++) {
+        Movimiento m = inventario->getMovimiento(i);
+        salidaMovimientos << m.getFecha() << ";" << m.getCodigo() << ";" << m.getTexto() << "\n";
+    }
+    archivoMovimientos.close();
     return true;
 }
 
@@ -45,5 +57,19 @@ bool ArchivoProductos::cargar(Inventario* inventario)
         }
     }
     archivo.close();
+
+    // Cargar los productos no cuenta como cambios: se borra eso y se lee la actividad guardada
+    inventario->limpiarHistorial();
+    QFile archivoMovimientos("movimientos.txt");
+    if (archivoMovimientos.open(QIODevice::ReadOnly) == true) {
+        QTextStream entradaMovimientos(&archivoMovimientos);
+        while (entradaMovimientos.atEnd() == false) {
+            QStringList partes = entradaMovimientos.readLine().split(";");
+            if (partes.size() == 3) {
+                inventario->agregarMovimiento(Movimiento(partes[0], partes[1], partes[2]));
+            }
+        }
+        archivoMovimientos.close();
+    }
     return true;
 }
