@@ -246,3 +246,14 @@ void Estilo::aparecer(QWidget* widget, int duracion, int desplazamiento)
     });
     grupo->start();
 }
+
+void Estilo::terminarEfectosArriba(QWidget* widget)
+{
+    QWidget* padre = widget->parentWidget();
+    while (padre != nullptr) {
+        if (padre->graphicsEffect() != nullptr) {
+            padre->setGraphicsEffect(nullptr);
+        }
+        padre = padre->parentWidget();
+    }
+}

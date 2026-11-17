@@ -1,6 +1,7 @@
 #include "ProductosForm.h"
 #include "ArchivoProductos.h"
 #include "Imagenes.h"
+#include "Estilo.h"
 #include <QShortcut>
 #include <QKeySequence>
 #include <QHeaderView>
@@ -565,6 +566,7 @@ void ProductosForm::mostrarBarra(QString texto)
     timerBarra.start();
 
     if (estabaOculta == true) {
+        Estilo::terminarEfectosArriba(ui.barraDeshacer);
         QGraphicsOpacityEffect* efecto = new QGraphicsOpacityEffect(ui.barraDeshacer);
         ui.barraDeshacer->setGraphicsEffect(efecto);
         QVariantAnimation* animacion = new QVariantAnimation(this);
@@ -657,6 +659,7 @@ void ProductosForm::mostrarImagen(bool animar)
         animacionImagen->stop();
     }
 
+    Estilo::terminarEfectosArriba(ui.lblImagen);
     QPointer<QGraphicsOpacityEffect> efecto = new QGraphicsOpacityEffect(ui.lblImagen);
     efecto->setOpacity(0.0);
     ui.lblImagen->setGraphicsEffect(efecto);

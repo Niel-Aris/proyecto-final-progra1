@@ -3,6 +3,7 @@
 #include "ArchivoVentas.h"
 #include "TicketTxt.h"
 #include "Imagenes.h"
+#include "Estilo.h"
 #include <QShortcut>
 #include <QKeySequence>
 #include <QLocale>
@@ -282,6 +283,7 @@ void VentasForm::animarVuelo(QListWidgetItem* item)
     volador->show();
     volador->raise();
 
+    Estilo::terminarEfectosArriba(volador);
     QGraphicsOpacityEffect* efecto = new QGraphicsOpacityEffect(volador);
     volador->setGraphicsEffect(efecto);
 
@@ -668,6 +670,7 @@ void VentasForm::mostrarExito(Venta venta)
     btnNuevaVenta->setFocus();
     timerExito.start();
 
+    Estilo::terminarEfectosArriba(frmExito);
     QGraphicsOpacityEffect* efecto = new QGraphicsOpacityEffect(frmExito);
     frmExito->setGraphicsEffect(efecto);
     QVariantAnimation* animacion = new QVariantAnimation(frmExito);
