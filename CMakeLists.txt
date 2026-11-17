@@ -24,6 +24,7 @@ add_executable(LaPulpe
     VentasForm.ui
 
     # Integrante 3: Comprobantes e historial
+    Venta.cpp Venta.h
     HistorialForm.ui
 
 )
