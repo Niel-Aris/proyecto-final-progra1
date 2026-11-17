@@ -17,7 +17,7 @@ add_executable(LaPulpe
     Producto.cpp Producto.h
     Inventario.cpp Inventario.h
     ArchivoProductos.cpp ArchivoProductos.h
-    ProductosForm.ui
+    ProductosForm.cpp ProductosForm.h ProductosForm.ui
 
     # Integrante 2: Ventas y cobro
 
