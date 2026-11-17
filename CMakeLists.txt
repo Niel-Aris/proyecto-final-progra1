@@ -54,7 +54,9 @@ add_executable(LaPulpe
 target_link_libraries(LaPulpe PRIVATE Qt6::Widgets)
 
 # Copia los productos de ejemplo a la carpeta donde se ejecuta el programa.
-# Solo la primera vez: si ya existe, tiene los datos reales y no se debe pisar.
-if(EXISTS ${CMAKE_SOURCE_DIR}/productos.txt AND NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/productos.txt)
-    file(COPY productos.txt DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+# Solo la primera vez: si ya hay datos (productos.json, o el productos.txt de antes) no se deben pisar.
+if(EXISTS ${CMAKE_SOURCE_DIR}/productos.json
+   AND NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/productos.json
+   AND NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/productos.txt)
+    file(COPY productos.json DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 endif()
