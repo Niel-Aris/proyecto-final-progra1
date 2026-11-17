@@ -3,6 +3,7 @@
 #include <QTableWidgetItem>
 #include <QFile>
 #include <QTextStream>
+#include "ArchivoProductos.h"
 
 VentasForm::VentasForm(Inventario* inventario, Historial* historial, QWidget* parent)
     : QWidget(parent)
@@ -19,6 +20,12 @@ VentasForm::VentasForm(Inventario* inventario, Historial* historial, QWidget* pa
     actualizarProductos();
     actualizarTabla();
     actualizarTotal();
+}
+
+// MainWindow la llama al cambiar de pestaña, por si cambiaron los productos
+void VentasForm::actualizar()
+{
+    actualizarProductos();
 }
 
 void VentasForm::actualizarProductos()
@@ -81,6 +88,12 @@ void VentasForm::cobrar()
     }
 
     Venta venta = historial->getVenta(historial->getCantidad() - 1);
+
+    // El inventario ya bajó: se guarda para que no se pierda al cerrar
+    if (ArchivoProductos::guardar(inventario) == false) {
+        QMessageBox::critical(this, "Error", "No se pudo guardar productos.txt");
+    }
+
     guardarTicket(venta);
 
     QMessageBox::information(this, "Venta realizada",

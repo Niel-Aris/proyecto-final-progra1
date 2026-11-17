@@ -13,6 +13,7 @@ class VentasForm : public QWidget
 
 public:
     VentasForm(Inventario* inventario, Historial* historial, QWidget* parent = nullptr);
+    void actualizar();   // la llama MainWindow al cambiar de pestaña
 
 private slots:
     void agregarAlCarrito();
