@@ -640,10 +640,10 @@ void VentasForm::cobrar()
 
     // El inventario y el historial ya cambiaron: se guardan para que no se pierdan al cerrar
     if (ArchivoProductos::guardar(inventario) == false) {
-        mostrarError("No se pudo guardar productos.txt");
+        mostrarError("No se pudo guardar productos.json");
     }
     if (ArchivoVentas::guardar(historial) == false) {
-        mostrarError("No se pudo guardar ventas.txt");
+        mostrarError("No se pudo guardar ventas.json");
     }
     TicketTxt ticket;
     if (ticket.guardar(venta) == false) {
