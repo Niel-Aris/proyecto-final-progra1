@@ -21,6 +21,7 @@ add_executable(LaPulpe
 
     # Integrante 2: Ventas y cobro
     LineaVenta.cpp LineaVenta.h
+    Carrito.cpp Carrito.h
     VentasForm.ui
 
     # Integrante 3: Comprobantes e historial
