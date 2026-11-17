@@ -257,13 +257,13 @@ QLabel#lblTituloFicha {
     font-size: 20px;
     font-weight: 700;
 }
-QLabel#lblSubtitulo, QLabel#lblResumen, QLabel#lblAtajos {
+QLabel#lblSubtitulo, QLabel#lblResumen {
     color: #6e6e73;
     font-size: 12px;
 }
 QLabel#lblRecibir {
     font-weight: 600;
-    padding-top: 10px;
+    padding-top: 6px;
 }
 QPushButton#btnNuevo {
     background: transparent;

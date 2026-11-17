@@ -4,5 +4,11 @@
         <file>estilo.qss</file>
         <file>flecha.png</file>
         <file>flecha@2x.png</file>
+        <file>imagenes/P001.png</file>
+        <file>imagenes/P002.png</file>
+        <file>imagenes/P003.png</file>
+        <file>imagenes/P004.png</file>
+        <file>imagenes/P005.png</file>
+        <file>imagenes/P006.png</file>
     </qresource>
 </RCC>

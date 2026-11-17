@@ -82,8 +82,8 @@ void Estilo::cargar(QApplication* app)
 void Estilo::aplicar(QMainWindow* ventana)
 {
     ventana->setWindowTitle("La Pulpe");
-    ventana->setMinimumSize(880, 580);
-    ventana->resize(1020, 660);
+    ventana->setMinimumSize(900, 640);
+    ventana->resize(1060, 720);
 
     // Márgenes de la ventana
     QBoxLayout* principal = qobject_cast<QBoxLayout*>(ventana->centralWidget()->layout());

@@ -5,6 +5,13 @@
 #include <QHeaderView>
 #include <QLocale>
 #include <QColor>
+#include <QPainter>
+#include <QLinearGradient>
+#include <QFont>
+#include <QStringList>
+#include <QGraphicsOpacityEffect>
+#include <QVariantAnimation>
+#include <QEasingCurve>
 
 // Desde esta cantidad para abajo un producto se marca como "por agotarse"
 const int POCAS_EXISTENCIAS = 5;
@@ -44,6 +51,12 @@ ProductosForm::ProductosForm(Inventario* inventario, QWidget* parent)
     connect(ui.btnRecibir, &QPushButton::clicked, this, &ProductosForm::recibirMercaderia);
     connect(ui.txtCodigo, &QLineEdit::returnPressed, this, &ProductosForm::guardarProducto);
     connect(ui.txtNombre, &QLineEdit::returnPressed, this, &ProductosForm::guardarProducto);
+    // En un producto nuevo la imagen muestra las iniciales mientras se escribe el nombre
+    connect(ui.txtNombre, &QLineEdit::textChanged, this, [this]() {
+        if (posicionActual == -1) {
+            mostrarImagen(false);
+        }
+    });
 
     // Atajos de teclado
     QShortcut* buscar = new QShortcut(QKeySequence::Find, this);
@@ -56,10 +69,12 @@ ProductosForm::ProductosForm(Inventario* inventario, QWidget* parent)
     QShortcut* guardar = new QShortcut(QKeySequence::Save, this);
     connect(guardar, &QShortcut::activated, this, &ProductosForm::guardarProducto);
 
-    ui.lblAtajos->setText(QKeySequence(QKeySequence::Find).toString(QKeySequence::NativeText) + " buscar   ·   "
-                          + QKeySequence(QKeySequence::New).toString(QKeySequence::NativeText) + " nuevo   ·   "
-                          + QKeySequence(QKeySequence::Save).toString(QKeySequence::NativeText) + " guardar   ·   "
-                          + "doble clic en precio o existencias para editarlos");
+    // Los atajos se ven en la búsqueda y al pasar el mouse por los botones
+    QString teclaBuscar = QKeySequence(QKeySequence::Find).toString(QKeySequence::NativeText);
+    ui.txtBuscar->setPlaceholderText("Buscar por código o nombre   (" + teclaBuscar + ")");
+    ui.btnNuevo->setToolTip("Nuevo producto (" + QKeySequence(QKeySequence::New).toString(QKeySequence::NativeText) + ")");
+    ui.btnGuardar->setToolTip("Guardar (" + QKeySequence(QKeySequence::Save).toString(QKeySequence::NativeText) + ")");
+    ui.tablaProductos->setToolTip("Doble clic en precio o existencias para cambiarlos ahí mismo");
 
     // El mensaje de la ficha se borra solo
     timerMensaje.setSingleShot(true);
@@ -84,6 +99,7 @@ void ProductosForm::actualizar()
     aplicarFiltro();
     mostrarResumen();
     mostrarFicha();
+    mostrarImagen(false);
 }
 
 void ProductosForm::llenarTabla()
@@ -241,12 +257,14 @@ void ProductosForm::seleccionarProducto(int fila, int columna)
     if (posicion == -1) {
         return;
     }
-    if (posicion != posicionActual) {
+    bool esOtro = posicion != posicionActual;
+    if (esOtro == true) {
         ui.lblMensaje->clear();
     }
     posicionActual = posicion;
     cargarCampos();
     mostrarFicha();
+    mostrarImagen(esOtro);
 }
 
 // Pone la ficha en modo "nuevo" o "editar" según lo que esté elegido
@@ -310,6 +328,7 @@ void ProductosForm::nuevoProducto()
     ui.spnPrecio->setValue(0);
     ui.spnExistencias->setValue(0);
     mostrarFicha();
+    mostrarImagen(true);
     ui.txtNombre->setFocus();
 }
 
@@ -483,4 +502,137 @@ bool ProductosForm::guardarArchivo()
         return false;
     }
     return true;
+}
+
+// Imagen del producto. Las de los productos de ejemplo están en imagenes/ con el código como nombre.
+// Si un producto no tiene imagen, se dibuja una tarjeta con sus iniciales.
+QPixmap ProductosForm::imagenProducto(QString codigo, QString nombre, bool activo) const
+{
+    QPixmap imagen(":/imagenes/" + codigo + ".png");
+
+    if (imagen.isNull() == true) {
+        // Tarjeta del mismo tamaño que las imágenes (760 x 340), con un color que sale del nombre
+        imagen = QPixmap(760, 340);
+        imagen.fill(Qt::transparent);
+        int tono = qHash(nombre) % 360;
+
+        QPainter pintor(&imagen);
+        pintor.setRenderHint(QPainter::Antialiasing);
+        QLinearGradient degradado(0, 0, 760, 340);
+        degradado.setColorAt(0, QColor::fromHsl(tono, 160, 238));
+        degradado.setColorAt(1, QColor::fromHsl(tono, 130, 205));
+        pintor.setPen(Qt::NoPen);
+        pintor.setBrush(degradado);
+        pintor.drawRoundedRect(QRectF(0, 0, 760, 340), 28, 28);
+        pintor.setBrush(QColor(255, 255, 255, 70));
+        pintor.drawEllipse(QPointF(650, 50), 110, 110);
+        pintor.drawEllipse(QPointF(90, 310), 80, 80);
+
+        // Iniciales de las dos primeras palabras
+        QString iniciales;
+        // Solo cuentan las palabras de más de 2 letras, así "Azúcar 1 kg" da "AZ" y no "AK"
+        QStringList palabras;
+        QStringList todas = nombre.split(" ", Qt::SkipEmptyParts);
+        for (int i = 0; i < todas.size(); i++) {
+            if (todas[i].size() > 2 && todas[i][0].isLetter() == true) {
+                palabras.append(todas[i]);
+            }
+        }
+        if (palabras.size() == 1) {
+            iniciales = palabras[0].left(2).toUpper();
+        } else if (palabras.size() >= 2) {
+            iniciales = QString(palabras[0][0].toUpper()) + palabras[1][0].toUpper();
+        }
+        if (iniciales == "") {
+            iniciales = "+";
+        }
+        pintor.setBrush(QColor(255, 255, 255, 215));
+        pintor.drawEllipse(QPointF(380, 170), 92, 92);
+        QFont letra = font();
+        letra.setPixelSize(70);
+        letra.setBold(true);
+        pintor.setFont(letra);
+        pintor.setPen(QColor::fromHsl(tono, 110, 85));
+        pintor.drawText(QRectF(288, 78, 184, 184), Qt::AlignCenter, iniciales);
+        pintor.end();
+    }
+
+    // Un producto inactivo se ve deslavado
+    if (activo == false) {
+        QPainter pintor(&imagen);
+        pintor.setCompositionMode(QPainter::CompositionMode_SourceAtop);
+        pintor.fillRect(imagen.rect(), QColor(245, 245, 247, 150));
+        pintor.end();
+    }
+    return imagen;
+}
+
+// Cambia la imagen de la ficha. Con animación aparece suave y crece un poco, como en iOS.
+void ProductosForm::mostrarImagen(bool animar)
+{
+    if (posicionActual == -1) {
+        QString nombre = ui.txtNombre->text().trimmed();
+        imagenActual = imagenProducto("", nombre, true);
+    } else {
+        Producto p = inventario->getProducto(posicionActual);
+        imagenActual = imagenProducto(p.getCodigo(), p.getNombre(), p.getActivo());
+    }
+
+    if (animar == false) {
+        pintarImagen(1.0);
+        return;
+    }
+
+    // Si se hace clic rápido en varios productos, se corta la animación anterior
+    if (animacionImagen != nullptr) {
+        animacionImagen->stop();
+    }
+
+    QPointer<QGraphicsOpacityEffect> efecto = new QGraphicsOpacityEffect(ui.lblImagen);
+    efecto->setOpacity(0.0);
+    ui.lblImagen->setGraphicsEffect(efecto);
+
+    QVariantAnimation* animacion = new QVariantAnimation(this);
+    animacionImagen = animacion;
+    animacion->setDuration(340);
+    animacion->setStartValue(0.0);
+    animacion->setEndValue(1.0);
+    animacion->setEasingCurve(QEasingCurve::OutCubic);
+    connect(animacion, &QVariantAnimation::valueChanged, this, [this, efecto](const QVariant& valor) {
+        double avance = valor.toDouble();
+        if (efecto != nullptr) {
+            efecto->setOpacity(avance);
+        }
+        pintarImagen(0.92 + 0.08 * avance);
+    });
+    connect(animacion, &QVariantAnimation::finished, this, [this]() {
+        ui.lblImagen->setGraphicsEffect(nullptr);
+        pintarImagen(1.0);
+    });
+    animacion->start(QAbstractAnimation::DeleteWhenStopped);
+}
+
+// Dibuja la imagen actual en la etiqueta, del tamaño que cabe (escala 1.0 = tamaño normal)
+void ProductosForm::pintarImagen(double escala)
+{
+    if (imagenActual.isNull() == true) {
+        return;
+    }
+    int ancho = ui.lblImagen->width();
+    if (ancho < 100) {
+        ancho = 380;
+    }
+    int alto = ui.lblImagen->maximumHeight();
+    double pantalla = devicePixelRatioF();
+    QSize tamano(qRound(ancho * escala * pantalla), qRound(alto * escala * pantalla));
+    QPixmap escalada = imagenActual.scaled(tamano, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    escalada.setDevicePixelRatio(pantalla);
+    ui.lblImagen->setPixmap(escalada);
+}
+
+// Si cambia el tamaño de la ventana, la imagen se vuelve a ajustar
+void ProductosForm::resizeEvent(QResizeEvent* evento)
+{
+    QWidget::resizeEvent(evento);
+    pintarImagen(1.0);
 }
